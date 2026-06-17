@@ -7,7 +7,9 @@ from app.database import get_db
 from app.models.contestant import Contestant, Work
 from app.models.site_config import SiteConfig
 from app.services.storage import upload_image
-from app.services.work_number import generate_work_number
+
+ALLOWED_CONTENT_TYPES = {"image/jpeg", "image/png", "image/webp", "image/heic"}
+MAX_FILE_SIZE = 10 * 1024 * 1024  # 10MB
 
 router = APIRouter()
 
@@ -30,6 +32,13 @@ async def register(
         raise HTTPException(status_code=400, detail="最多上传 3 张图片")
     if len(images) == 0:
         raise HTTPException(status_code=400, detail="请上传至少一张作品图片")
+
+    # 验证文件类型和大小
+    for img in images:
+        if img.content_type not in ALLOWED_CONTENT_TYPES:
+            raise HTTPException(status_code=400, detail=f"不支持的图片格式: {img.content_type}，仅支持 JPEG/PNG/WebP/HEIC")
+        if img.size and img.size > MAX_FILE_SIZE:
+            raise HTTPException(status_code=400, detail="单张图片不能超过 10MB")
 
     # 检查报名通道
     result = await db.execute(select(SiteConfig).where(SiteConfig.key == "register_channel"))

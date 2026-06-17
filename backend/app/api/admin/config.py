@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from app.database import get_db
 from app.models.site_config import SiteConfig
+from app.models.audit_log import AuditLog
 from app.models.user import AdminUser
 from app.schemas.config import ConfigUpdateRequest
 from app.api.deps import require_role
@@ -37,5 +38,13 @@ async def admin_update_config(
         db.add(config)
     else:
         config.value = req.value
+    db.add(AuditLog(
+        admin_user_id=current_user.id,
+        action="update_config",
+        target_type="config",
+        target_id=key,
+        detail={"value": req.value},
+        ip_address="system",
+    ))
     await db.commit()
     return {"message": "配置已更新"}

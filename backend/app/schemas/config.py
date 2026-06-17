@@ -1,3 +1,5 @@
+from typing import Literal
+
 from pydantic import BaseModel
 
 
@@ -6,6 +8,6 @@ class ConfigUpdateRequest(BaseModel):
 
 
 class ChannelUpdateRequest(BaseModel):
-    status: str  # "open" or "closed"
+    status: Literal["open", "closed"]
     start_time: str | None = None
     end_time: str | None = None

@@ -9,6 +9,11 @@ from app.models.vote import Vote
 router = APIRouter()
 
 
+def _escape_like(s: str) -> str:
+    """Escape LIKE special characters to prevent wildcard injection."""
+    return s.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+
+
 @router.get("/api/works")
 async def list_works(
     search: str = Query("", description="搜索作品编号或参赛者姓名"),
@@ -17,15 +22,24 @@ async def list_works(
     size: int = Query(12, ge=1, le=50),
     db: AsyncSession = Depends(get_db),
 ):
+    # Vote counts subquery (used for both sorting and output)
+    vote_counts = (
+        select(Vote.work_id, func.count().label("cnt"))
+        .group_by(Vote.work_id)
+        .subquery()
+    )
+
     query = (
-        select(Work, Contestant)
+        select(Work, Contestant, func.coalesce(vote_counts.c.cnt, 0).label("vote_count"))
         .join(Contestant, Work.contestant_id == Contestant.id)
+        .outerjoin(vote_counts, Work.id == vote_counts.c.work_id)
         .where(Work.status == "approved")
     )
 
     if search:
+        escaped = _escape_like(search)
         query = query.where(
-            (Work.work_number.ilike(f"%{search}%")) | (Contestant.name.ilike(f"%{search}%"))
+            (Work.work_number.ilike(f"%{escaped}%")) | (Contestant.name.ilike(f"%{escaped}%"))
         )
 
     # 总数
@@ -34,18 +48,11 @@ async def list_works(
 
     # 排序
     if sort == "votes":
-        vote_counts = (
-            select(Vote.work_id, func.count().label("cnt"))
-            .group_by(Vote.work_id)
-            .subquery()
-        )
-        query = query.outerjoin(vote_counts, Work.id == vote_counts.c.work_id).order_by(
-            vote_counts.c.cnt.desc().nullslast()
-        )
+        query = query.order_by(vote_counts.c.cnt.desc().nullslast())
     elif sort == "latest":
         query = query.order_by(Work.created_at.desc())
     else:
-        query = query.order_by(Work.work_number.asc())
+        query = query.order_by(Work.work_number.asc().nullslast())
 
     # 分页
     query = query.offset((page - 1) * size).limit(size)
@@ -53,12 +60,7 @@ async def list_works(
     rows = result.all()
 
     data = []
-    for work, contestant in rows:
-        vote_result = await db.execute(
-            select(func.count()).select_from(Vote).where(Vote.work_id == work.id)
-        )
-        vote_count = vote_result.scalar() or 0
-
+    for work, contestant, vote_count in rows:
         name_masked = contestant.name[0] + "**" if len(contestant.name) > 1 else contestant.name
 
         data.append({

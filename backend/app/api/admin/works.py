@@ -1,13 +1,15 @@
 # backend/app/api/admin/works.py
 from datetime import datetime, timezone
+from uuid import UUID
+
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, func
 from app.database import get_db
 from app.models.contestant import Work, Contestant
 from app.models.audit_log import AuditLog
 from app.models.user import AdminUser
-from app.schemas.work import WorkDetail, ApproveRequest, RejectRequest
+from app.schemas.work import ApproveRequest, RejectRequest
 from app.api.deps import require_role
 from app.services.work_number import generate_work_number
 
@@ -22,10 +24,15 @@ async def admin_list_works(
     db: AsyncSession = Depends(get_db),
     current_user: AdminUser = Depends(require_role("super_admin")),
 ):
-    query = select(Work, Contestant).join(Contestant, Work.contestant_id == Contestant.id)
+    base_query = select(Work, Contestant).join(Contestant, Work.contestant_id == Contestant.id)
     if status != "all":
-        query = query.where(Work.status == status)
-    query = query.order_by(Work.created_at.desc()).offset((page - 1) * size).limit(size)
+        base_query = base_query.where(Work.status == status)
+
+    # Total count
+    count_query = select(func.count()).select_from(base_query.subquery())
+    total = (await db.execute(count_query)).scalar() or 0
+
+    query = base_query.order_by(Work.created_at.desc()).offset((page - 1) * size).limit(size)
     result = await db.execute(query)
     rows = result.all()
 
@@ -41,23 +48,26 @@ async def admin_list_works(
             "images": work.images,
             "status": work.status,
             "reject_reason": work.reject_reason,
+            "reviewed_at": work.reviewed_at.isoformat() if work.reviewed_at else None,
             "created_at": work.created_at.isoformat() if work.created_at else None,
         })
 
-    return {"data": data, "page": page, "size": size}
+    return {"data": data, "total": total, "page": page, "size": size}
 
 
 @router.post("/api/admin/works/{work_id}/approve")
 async def approve_work(
-    work_id: str,
+    work_id: UUID,
     req: ApproveRequest,
     db: AsyncSession = Depends(get_db),
     current_user: AdminUser = Depends(require_role("super_admin")),
 ):
     result = await db.execute(select(Work).where(Work.id == work_id))
     work = result.scalar_one_or_none()
-    if not work or work.status != "pending":
-        raise HTTPException(status_code=404, detail="作品不存在或状态不正确")
+    if not work:
+        raise HTTPException(status_code=404, detail="作品不存在")
+    if work.status != "pending":
+        raise HTTPException(status_code=409, detail="作品状态不正确，仅待审核作品可操作")
 
     work.work_number = req.work_number or await generate_work_number(db)
     work.status = "approved"
@@ -77,15 +87,17 @@ async def approve_work(
 
 @router.post("/api/admin/works/{work_id}/reject")
 async def reject_work(
-    work_id: str,
+    work_id: UUID,
     req: RejectRequest,
     db: AsyncSession = Depends(get_db),
     current_user: AdminUser = Depends(require_role("super_admin")),
 ):
     result = await db.execute(select(Work).where(Work.id == work_id))
     work = result.scalar_one_or_none()
-    if not work or work.status != "pending":
-        raise HTTPException(status_code=404, detail="作品不存在或状态不正确")
+    if not work:
+        raise HTTPException(status_code=404, detail="作品不存在")
+    if work.status != "pending":
+        raise HTTPException(status_code=409, detail="作品状态不正确，仅待审核作品可操作")
 
     work.status = "rejected"
     work.reject_reason = req.reason
@@ -105,7 +117,7 @@ async def reject_work(
 
 @router.delete("/api/admin/works/{work_id}")
 async def delete_work(
-    work_id: str,
+    work_id: UUID,
     db: AsyncSession = Depends(get_db),
     current_user: AdminUser = Depends(require_role("super_admin")),
 ):
