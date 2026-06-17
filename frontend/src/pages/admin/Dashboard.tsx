@@ -7,14 +7,8 @@ import Content from "./Content";
 import Scores from "./Scores";
 import Export from "./Export";
 import Config from "./Config";
-
-function ScorerPlaceholder() {
-  return (
-    <div className="text-center py-12 text-gray-500">
-      <p className="text-lg">评分功能即将上线</p>
-    </div>
-  );
-}
+import TaskList from "../scorer/TaskList";
+import Scoring from "../scorer/Scoring";
 
 function AdminRedirect() {
   const role = sessionStorage.getItem("admin_role");
@@ -36,8 +30,8 @@ export default function Dashboard() {
           <Route path="scores" element={<Scores />} />
           <Route path="export" element={<Export />} />
           <Route path="config" element={<Config />} />
-          <Route path="scoring" element={<ScorerPlaceholder />} />
-          <Route path="scoring/:workId" element={<ScorerPlaceholder />} />
+          <Route path="scoring" element={<TaskList />} />
+          <Route path="scoring/:workId" element={<Scoring />} />
         </Route>
       </Routes>
     </ProtectedRoute>
