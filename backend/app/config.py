@@ -24,6 +24,7 @@ class Settings(BaseSettings):
 
     # CORS
     frontend_url: str = "http://localhost:5173"
+    allowed_origins: str = "http://localhost:5173"  # comma-separated in production
 
     class Config:
         env_file = ".env"

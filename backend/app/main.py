@@ -17,9 +17,13 @@ from app.api.admin.export import router as admin_export_router
 
 app = FastAPI(title="中汇文具 20 周年橱窗大赛 API", version="1.0.0")
 
+origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
+if settings.frontend_url and settings.frontend_url not in origins:
+    origins.append(settings.frontend_url)
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url],
+    allow_origins=origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
