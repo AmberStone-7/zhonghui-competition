@@ -1,0 +1,3 @@
+export default function Showcase() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">作品展示</h1></div>;
+}

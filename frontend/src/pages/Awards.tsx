@@ -1,0 +1,3 @@
+export default function Awards() {
+  return <div className="p-8"><h1 className="text-2xl font-bold">赛事奖项</h1></div>;
+}
