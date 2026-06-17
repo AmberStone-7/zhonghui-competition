@@ -1,3 +1,45 @@
+import { Routes, Route, Navigate } from "react-router-dom";
+import ProtectedRoute from "../../components/ProtectedRoute";
+import AdminLayout from "../../components/AdminLayout";
+import Review from "./Review";
+import Works from "./Works";
+import Content from "./Content";
+import Scores from "./Scores";
+import Export from "./Export";
+import Config from "./Config";
+
+function ScorerPlaceholder() {
+  return (
+    <div className="text-center py-12 text-gray-500">
+      <p className="text-lg">评分功能即将上线</p>
+    </div>
+  );
+}
+
+function AdminRedirect() {
+  const role = sessionStorage.getItem("admin_role");
+  if (role === "super_admin") {
+    return <Navigate to="/admin/review" replace />;
+  }
+  return <Navigate to="/admin/scoring" replace />;
+}
+
 export default function Dashboard() {
-  return <div className="p-8"><h1 className="text-2xl font-bold">管理后台</h1></div>;
+  return (
+    <ProtectedRoute>
+      <Routes>
+        <Route element={<AdminLayout />}>
+          <Route index element={<AdminRedirect />} />
+          <Route path="review" element={<Review />} />
+          <Route path="works" element={<Works />} />
+          <Route path="content" element={<Content />} />
+          <Route path="scores" element={<Scores />} />
+          <Route path="export" element={<Export />} />
+          <Route path="config" element={<Config />} />
+          <Route path="scoring" element={<ScorerPlaceholder />} />
+          <Route path="scoring/:workId" element={<ScorerPlaceholder />} />
+        </Route>
+      </Routes>
+    </ProtectedRoute>
+  );
 }
