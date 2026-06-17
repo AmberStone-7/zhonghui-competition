@@ -3,6 +3,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.config import settings
 from app.api.admin.auth import router as admin_auth_router
+from app.api.admin.works import router as admin_works_router
 from app.api.public.register import router as public_register_router
 from app.api.public.works import router as public_works_router
 
@@ -18,6 +19,7 @@ app.add_middleware(
 
 
 app.include_router(admin_auth_router)
+app.include_router(admin_works_router)
 app.include_router(public_register_router)
 app.include_router(public_works_router)
 
