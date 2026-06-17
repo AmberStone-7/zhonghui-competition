@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, HTTPException, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -56,7 +56,7 @@ async def export_data(
         rows = [[u.username, l.action, l.target_type, l.target_id, str(l.detail), l.created_at.isoformat()] for l, u in result.all()]
 
     else:
-        return {"error": "无效的导出类型"}
+        raise HTTPException(status_code=400, detail="无效的导出类型")
 
     if format == "xlsx":
         content = generate_excel(headers, rows)
