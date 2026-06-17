@@ -55,10 +55,10 @@ def upgrade() -> None:
         sa.Column("username", sa.String(50), unique=True, nullable=False),
         sa.Column("password_hash", sa.String(255), nullable=False),
         sa.Column("role", admin_role, nullable=False),
-        sa.Column("status", user_status, server_default="active"),
-        sa.Column("failed_login_count", sa.Integer(), server_default="0"),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.Column("status", user_status, nullable=False, server_default=sa.text("'active'")),
+        sa.Column("failed_login_count", sa.Integer(), nullable=False, server_default=sa.text("0")),
+        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
+        sa.Column("updated_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
     )
 
     # contestants table
@@ -69,7 +69,7 @@ def upgrade() -> None:
         sa.Column("address", sa.String(255), nullable=False),
         sa.Column("tax_id", sa.String(50), unique=True, nullable=False),
         sa.Column("phone", sa.String(20), unique=True, nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
     )
 
     # works table
@@ -84,11 +84,11 @@ def upgrade() -> None:
         ),
         sa.Column("work_number", sa.String(20), unique=True, nullable=True),
         sa.Column("images", ARRAY(sa.String()), nullable=False),
-        sa.Column("status", work_status, server_default="pending"),
+        sa.Column("status", work_status, nullable=False, server_default=sa.text("'pending'")),
         sa.Column("reject_reason", sa.Text(), nullable=True),
         sa.Column("reviewed_at", sa.DateTime(), nullable=True),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
+        sa.Column("updated_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
     )
 
     # votes table
@@ -104,7 +104,7 @@ def upgrade() -> None:
         sa.Column("phone", sa.String(20), nullable=False),
         sa.Column("ip_address", sa.String(45), nullable=False),
         sa.Column("user_agent", sa.String(500), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
         sa.UniqueConstraint("work_id", "phone", name="uq_vote_work_phone"),
     )
 
@@ -121,9 +121,9 @@ def upgrade() -> None:
         sa.Column("scorer_role", scorer_role, nullable=False),
         sa.Column("items", JSONB(), nullable=False),
         sa.Column("subtotal", sa.Float(), nullable=False),
-        sa.Column("status", score_status, server_default="unreviewed"),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.Column("status", score_status, nullable=False, server_default=sa.text("'unreviewed'")),
+        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
+        sa.Column("updated_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
     )
 
     # audit_logs table
@@ -140,7 +140,7 @@ def upgrade() -> None:
         sa.Column("target_id", sa.String(50), nullable=False),
         sa.Column("detail", JSONB(), nullable=True),
         sa.Column("ip_address", sa.String(45), nullable=False),
-        sa.Column("created_at", sa.DateTime(), nullable=True),
+        sa.Column("created_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
     )
 
     # site_configs table
@@ -149,7 +149,7 @@ def upgrade() -> None:
         sa.Column("id", UUID(as_uuid=True), primary_key=True),
         sa.Column("key", sa.String(100), unique=True, nullable=False),
         sa.Column("value", JSONB(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(), nullable=True),
+        sa.Column("updated_at", sa.DateTime(), nullable=False, server_default=sa.text("NOW()")),
     )
 
 
