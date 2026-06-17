@@ -10,6 +10,9 @@ from app.api.public.register import router as public_register_router
 from app.api.public.works import router as public_works_router
 from app.api.public.config import router as public_config_router
 from app.api.public.vote import router as public_vote_router
+from app.api.admin.scoring import router as admin_scoring_router
+from app.api.admin.scores import router as admin_scores_router
+from app.api.admin.users import router as admin_users_router
 
 app = FastAPI(title="中汇文具 20 周年橱窗大赛 API", version="1.0.0")
 
@@ -30,6 +33,9 @@ app.include_router(public_register_router)
 app.include_router(public_works_router)
 app.include_router(public_config_router)
 app.include_router(public_vote_router)
+app.include_router(admin_scoring_router)
+app.include_router(admin_scores_router)
+app.include_router(admin_users_router)
 
 
 @app.get("/api/health")
