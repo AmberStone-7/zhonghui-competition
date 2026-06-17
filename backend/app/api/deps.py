@@ -1,4 +1,6 @@
 # backend/app/api/deps.py
+from datetime import datetime, timedelta, timezone
+
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from jose import jwt, JWTError
@@ -39,8 +41,9 @@ def require_role(*roles: str):
 
 
 def create_token(user: AdminUser) -> str:
+    expire = datetime.now(timezone.utc) + timedelta(hours=settings.jwt_expire_hours)
     return jwt.encode(
-        {"sub": str(user.id), "role": user.role},
+        {"sub": str(user.id), "role": user.role, "exp": expire},
         settings.jwt_secret_key,
         algorithm=settings.jwt_algorithm,
     )
