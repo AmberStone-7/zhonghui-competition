@@ -1,5 +1,6 @@
 # backend/app/main.py
 import os
+import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse
@@ -19,6 +20,7 @@ from app.api.admin.scores import router as admin_scores_router
 from app.api.admin.users import router as admin_users_router
 from app.api.admin.export import router as admin_export_router
 
+logger = logging.getLogger("uvicorn.error")
 app = FastAPI(title="中汇文具 20 周年橱窗大赛 API", version="1.0.0")
 
 origins = [o.strip() for o in settings.allowed_origins.split(",") if o.strip()]
@@ -56,13 +58,33 @@ async def health_check():
 
 
 # --- Serve Frontend Static Files ---
-STATIC_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "static")
+# Try multiple possible static directories
+_candidates = [
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), "static"),  # /app/static/
+    os.path.join(os.path.dirname(__file__), "static"),                   # /app/app/static/
+    "/app/static",
+    os.path.join(os.getcwd(), "static"),
+]
 
-if os.path.isdir(STATIC_DIR):
+STATIC_DIR = None
+for d in _candidates:
+    if os.path.isdir(d):
+        STATIC_DIR = d
+        break
+
+if STATIC_DIR:
+    logger.info(f"Serving static files from: {STATIC_DIR}")
     app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
 
     @app.get("/{full_path:path}", response_class=HTMLResponse)
     async def serve_spa(full_path: str):
         index_path = os.path.join(STATIC_DIR, "index.html")
-        with open(index_path, "r", encoding="utf-8") as f:
-            return f.read()
+        if os.path.isfile(index_path):
+            with open(index_path, "r", encoding="utf-8") as f:
+                return f.read()
+        return HTMLResponse("<h1>Frontend not built</h1>", status_code=404)
+else:
+    logger.warning(f"No static directory found. Checked: {_candidates}")
+    logger.warning(f"cwd={os.getcwd()}, __file__={__file__}")
+    for d in _candidates:
+        logger.warning(f"  {d}: exists={os.path.exists(d)}, isdir={os.path.isdir(d) if os.path.exists(d) else 'N/A'}")
