@@ -13,13 +13,15 @@ COPY frontend/package.json frontend/package-lock.json ./frontend/
 WORKDIR /app/frontend
 RUN npm ci --silent
 COPY frontend/ ./
-RUN npm run build
+RUN npm run build && ls -la dist/
 
 # Setup backend
 WORKDIR /app
 COPY backend/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY backend/ .
-RUN cp -r /app/frontend/dist /app/static
+
+# Copy frontend build to static directory
+RUN mkdir -p /app/static && cp -r /app/frontend/dist/* /app/static/ && ls -la /app/static/
 
 CMD ["bash", "startup.sh"]
