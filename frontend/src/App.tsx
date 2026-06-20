@@ -12,7 +12,7 @@ import Dashboard from "./pages/admin/Dashboard";
 export default function App() {
   return (
     <ErrorBoundary>
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.DEV ? "/static" : undefined}>
       <Routes>
         <Route element={<Layout />}>
           <Route path="/" element={<Register />} />

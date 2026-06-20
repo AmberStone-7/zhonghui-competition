@@ -36,7 +36,7 @@ app.add_middleware(
 )
 
 app.add_middleware(RequestLoggingMiddleware)
-app.add_middleware(RateLimitMiddleware, requests_per_minute=30)
+app.add_middleware(RateLimitMiddleware)
 
 app.include_router(admin_auth_router)
 app.include_router(admin_works_router)

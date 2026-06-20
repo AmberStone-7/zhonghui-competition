@@ -4,5 +4,14 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
-  base: "/static/",
+  base: '/static/',
+  server: {
+    proxy: {
+      '/api': {
+        target: 'https://zhonghui-competition-production.up.railway.app',
+        changeOrigin: true,
+        secure: false,
+      }
+    }
+  }
 })

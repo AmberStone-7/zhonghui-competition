@@ -1,5 +1,5 @@
 # backend/app/api/admin/works.py
-from datetime import datetime
+from datetime import datetime, timezone
 from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -71,7 +71,7 @@ async def approve_work(
 
     work.work_number = req.work_number or await generate_work_number(db)
     work.status = "approved"
-    work.reviewed_at = datetime.utcnow()
+    work.reviewed_at = datetime.now(timezone.utc)
 
     db.add(AuditLog(
         admin_user_id=current_user.id,
@@ -101,7 +101,7 @@ async def reject_work(
 
     work.status = "rejected"
     work.reject_reason = req.reason
-    work.reviewed_at = datetime.utcnow()
+    work.reviewed_at = datetime.now(timezone.utc)
 
     db.add(AuditLog(
         admin_user_id=current_user.id,

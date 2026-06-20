@@ -29,8 +29,8 @@ export default function Register() {
       };
       reader.readAsDataURL(file);
     });
-  };
 
+  };
   const removeFile = (index: number) => {
     setFiles((prev) => prev.filter((_, i) => i !== index));
     setPreviews((prev) => prev.filter((_, i) => i !== index));
@@ -59,9 +59,7 @@ export default function Register() {
     files.forEach((file) => formData.append("images", file));
 
     try {
-      await api.post("/api/register", formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.post("/api/register", formData);
       setSuccess(true);
     } catch (err: unknown) {
       const axiosErr = err as { response?: { status: number; data?: { detail?: string } } };

@@ -1,27 +1,46 @@
 import time
-import asyncio
 from collections import defaultdict
 from fastapi import Request
+from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
 import logging
 
 logger = logging.getLogger("uvicorn.access")
 
+# Default rate limits (requests per minute)
+DEFAULT_RULES: list[tuple[str, str, int]] = [
+    # (method, path_prefix, limit_per_minute)
+    ("POST", "/api/admin/login", 5),       # anti brute-force
+    ("POST", "/api/admin/scoring/", 20),   # scoring submission
+    ("POST", "/api/admin/scores/", 10),    # lock endpoint
+    ("POST", "/api/vote", 30),             # public voting
+    ("POST", "/api/register", 30),         # public registration
+]
 
 class RateLimitMiddleware(BaseHTTPMiddleware):
-    """Simple in-memory rate limiter using IP + path as key."""
+    """In-memory rate limiter with prefix-based path matching and per-endpoint limits."""
 
-    def __init__(self, app, requests_per_minute: int = 30):
+    def __init__(self, app, rules: list[tuple[str, str, int]] | None = None):
         super().__init__(app)
-        self.requests_per_minute = requests_per_minute
+        self.rules = rules or DEFAULT_RULES
         self.window_start: dict[str, float] = defaultdict(time.time)
         self.counters: dict[str, int] = defaultdict(int)
 
     async def dispatch(self, request: Request, call_next):
-        # Only rate-limit POST /api/vote and POST /api/register
-        if request.url.path in ("/api/vote", "/api/register") and request.method == "POST":
+        for method, path_prefix, limit in self.rules:
+            if request.method != method:
+                continue
+            match = False
+            if path_prefix.endswith("/"):
+                match = request.url.path.startswith(path_prefix)
+            else:
+                match = request.url.path == path_prefix
+
+            if not match:
+                continue
+
             client_ip = request.client.host if request.client else "unknown"
-            key = f"{client_ip}:{request.url.path}"
+            key = f"{client_ip}:{path_prefix}"
             now = time.time()
 
             if now - self.window_start[key] > 60:
@@ -29,8 +48,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 self.counters[key] = 0
 
             self.counters[key] += 1
-            if self.counters[key] > self.requests_per_minute:
-                from fastapi.responses import JSONResponse
+            if self.counters[key] > limit:
                 return JSONResponse(
                     status_code=429,
                     content={"detail": "请求过于频繁，请稍后再试"},
