@@ -1,1 +1,73 @@
 @import "tailwindcss";
+
+@theme {
+  --color-brand-red: #B91C1C;
+  --color-brand-red-light: #F52222;
+  --color-brand-gold: #B8860B;
+  --color-brand-bg: #F5F6F8;
+  --color-brand-card: #FFFFFF;
+  --color-brand-content: rgba(255, 255, 255, 0.9);
+  --color-brand-cream: #FEF3C7;
+  --color-brand-rose: #FEE2E2;
+  --color-brand-pink: #FFF1F0;
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #64748B;
+  --color-text-light: #6B7280;
+  --color-text-placeholder: #9CA3AF;
+}
+
+body {
+  font-family: "Inter", "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background: var(--color-brand-bg);
+  color: var(--color-text-primary);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ======== Mobile H5 Responsive ======== */
+@media (max-width: 767px) {
+  .h5-page {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    max-width: 100vw;
+    overflow-x: hidden;
+  }
+  .h5-hero {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(180deg, #1a0a0a 0%, #4a1515 40%, #8B1A1A 100%);
+    min-height: 100vh;
+  }
+  .h5-card {
+    background: #FFFFFF;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    margin-left: 1rem;
+    margin-right: 1rem;
+  }
+}
+
+/* ======== PC Layout ======== */
+@media (min-width: 768px) {
+  .pc-content {
+    max-width: 72rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding-left: 1.5rem;
+    padding-right: 1.5rem;
+  }
+}
+
+/* ======== Visibility Control ======== */
+@media (max-width: 767px) {
+  .pc-header-nav { display: none; }
+  .mobile-only { display: flex; }
+}
+@media (min-width: 768px) {
+  .pc-header-nav { display: flex; }
+  .mobile-only { display: none; }
+}
