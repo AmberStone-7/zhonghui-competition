@@ -1,18 +1,22 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 export default function AuthGuard({ children }: { children: React.ReactNode }) {
-  const [checked, setChecked] = useState(false);
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
-    const authorized = sessionStorage.getItem("data_authorized");
-    if (authorized !== "1") {
+    const auth = sessionStorage.getItem("data_authorized");
+    if (auth === "1") {
+      setAuthorized(true);
+    } else {
+      setAuthorized(false);
       navigate("/auth", { replace: true });
     }
-    setChecked(true);
-  }, [navigate]);
+  }, [location.pathname]);
 
-  if (!checked) return null;
+  if (authorized === null) return null;
+  if (!authorized) return null;
   return <>{children}</>;
 }
