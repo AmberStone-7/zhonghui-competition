@@ -3,14 +3,14 @@ import uuid
 from datetime import datetime
 from sqlalchemy import String, Enum as SAEnum, DateTime, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-from sqlalchemy.dialects.postgresql import UUID, ARRAY
+from sqlalchemy import Uuid as UUID, JSON
 from app.database import Base
 
 
 class Contestant(Base):
     __tablename__ = "contestants"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
     name: Mapped[str] = mapped_column(String(20), nullable=False)
     address: Mapped[str] = mapped_column(String(255), nullable=False)
     tax_id: Mapped[str] = mapped_column(String(50), unique=True, nullable=False)
@@ -23,10 +23,10 @@ class Contestant(Base):
 class Work(Base):
     __tablename__ = "works"
 
-    id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    contestant_id: Mapped[uuid.UUID] = mapped_column(UUID(as_uuid=True), ForeignKey("contestants.id"), unique=True)
+    id: Mapped[uuid.UUID] = mapped_column(UUID, primary_key=True, default=uuid.uuid4)
+    contestant_id: Mapped[uuid.UUID] = mapped_column(UUID, ForeignKey("contestants.id"), unique=True)
     work_number: Mapped[str | None] = mapped_column(String(20), unique=True, nullable=True)
-    images: Mapped[list[str]] = mapped_column(ARRAY(String), nullable=False)
+    images: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     status: Mapped[str] = mapped_column(
         SAEnum("pending", "approved", "rejected", "deleted", name="work_status"),
         default="pending",

@@ -1,5 +1,5 @@
-import { type ReactNode } from "react";
-import { Heart } from "lucide-react";
+import { type ReactNode, useState } from "react";
+import { ImageOff } from "lucide-react";
 
 interface WorkCardProps {
   work_number: string;
@@ -10,22 +10,46 @@ interface WorkCardProps {
 }
 
 export default function WorkCard({ work_number, name_masked, images, vote_count, action }: WorkCardProps) {
+  const hasImage = images.length > 0;
+  const [imgError, setImgError] = useState(false);
+
   return (
-    <div className="bg-white rounded-lg overflow-hidden border border-gray-200 transition-all hover:-translate-y-0.5 hover:shadow-lg">
-      <div className="h-48 bg-gradient-to-br from-gray-100 to-gray-200 flex items-center justify-center relative">
-        {images.length > 0 ? (
-          <img src={images[0]} alt={work_number} className="w-full h-full object-cover" />
-        ) : null}
-        <span className="absolute top-3 left-3 bg-black/60 text-white px-2.5 py-1 rounded-md text-xs font-semibold">
-          {work_number}
-        </span>
-        <span className="absolute top-3 right-3 bg-black/60 text-white px-2.5 py-1 rounded-md text-xs">
-          {vote_count} 票
-        </span>
+    <div className="bg-white rounded-lg overflow-hidden border border-gray-200 transition-all hover:-translate-y-0.5 hover:shadow-md">
+      {/* Image Area - 120px fixed height matching prototype */}
+      <div className="relative h-[120px] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
+        {hasImage && !imgError ? (
+          <img
+            src={images[0]}
+            alt={work_number}
+            className="w-full h-full object-cover"
+            onError={() => setImgError(true)}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center text-gray-300">
+            <ImageOff className="w-8 h-8" />
+          </div>
+        )}
+        {/* Overlay badges - positioned per prototype: top-2 left-2 right-2 */}
+        <div className="absolute top-2 left-2 right-2 flex justify-between">
+          <span className="bg-black/50 backdrop-blur-sm text-white/80 px-2 py-0.5 rounded text-xs font-semibold">
+            {work_number}
+          </span>
+          <span className="bg-black/50 backdrop-blur-sm text-white/80 px-2 py-0.5 rounded text-xs">
+            {vote_count}票
+          </span>
+        </div>
       </div>
-      <div className="p-4 flex justify-between items-center">
-        <span className="font-semibold">{name_masked}</span>
-        {action || <span className="text-sm text-amber-500 font-semibold"><Heart className="w-3.5 h-3.5 inline mr-1" /> {vote_count} 票</span>}
+
+      {/* Footer */}
+      <div className="px-3 pt-2 pb-3">
+        {action ? (
+          <div className="space-y-2">
+            <span className="block text-sm font-semibold text-[#111827]">{name_masked}</span>
+            {action}
+          </div>
+        ) : (
+          <span className="text-sm font-semibold text-[#111827]">{name_masked}</span>
+        )}
       </div>
     </div>
   );

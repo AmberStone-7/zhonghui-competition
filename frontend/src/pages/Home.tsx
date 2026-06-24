@@ -6,12 +6,15 @@ const BASE = import.meta.env.BASE_URL;
 export default function Home() {
   return (
     <div className="h5-page">
-      {/* === Mobile H5 Hero === */}
-      <div className="md:hidden h5-hero px-4">
-        <img src={`${BASE}assets/logo-gold.png`} alt="Logo" className="w-[227px] h-[95px] object-contain mt-20" />
+      {/* === Mobile H5 === */}
+      <div className="md:hidden flex flex-col items-center px-4 pt-12 pb-8" style={{ background: "#F0F9FF" }}>
+        {/* MainPaperMark first */}
+        <img src={`${BASE}assets/hero.png`} alt="Main Visual" className="w-[223px] h-[299px] object-contain mb-6" />
 
-        <img src={`${BASE}assets/hero.png`} alt="Main Visual" className="w-[223px] h-[299px] object-contain my-8" />
+        {/* LogoGold second */}
+        <img src={`${BASE}assets/logo-gold.png`} alt="Logo" className="w-[227px] h-[95px] object-contain mb-8" />
 
+        {/* Nav Buttons */}
         <div className="flex flex-col gap-4 w-full max-w-[280px]">
           <Link to="/register" className="bg-brand-red text-white text-[22px] font-bold py-4 rounded-xl text-center shadow-lg hover:bg-red-800 transition-colors">
             报名参赛
@@ -25,9 +28,9 @@ export default function Home() {
         </div>
 
         <div className="flex gap-4 mt-8 mb-12">
-          <Link to="/rules" className="text-white/80 text-[16px] underline underline-offset-4">赛制规则</Link>
-          <span className="text-white/40">|</span>
-          <Link to="/awards" className="text-white/80 text-[16px] underline underline-offset-4">赛事奖项</Link>
+          <Link to="/rules" className="text-text-muted text-[16px] underline underline-offset-4">赛制规则</Link>
+          <span className="text-text-placeholder">|</span>
+          <Link to="/awards" className="text-text-muted text-[16px] underline underline-offset-4">赛事奖项</Link>
         </div>
       </div>
 

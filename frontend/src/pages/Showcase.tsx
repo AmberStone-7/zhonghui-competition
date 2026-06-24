@@ -105,7 +105,7 @@ export default function Showcase() {
 
       {/* === PC === */}
       <div className="hidden md:block">
-        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[240px] flex items-center justify-center">
+        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[300px] flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white">作品展示</h1>
             <p className="text-white/70 mt-2">浏览所有参赛作品，为您喜爱的作品投票</p>

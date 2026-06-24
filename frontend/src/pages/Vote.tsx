@@ -119,7 +119,7 @@ export default function Vote() {
 
       {/* === PC === */}
       <div className="hidden md:block">
-        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[240px] flex items-center justify-center">
+        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[300px] flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white">人气投票</h1>
             <p className="text-white/70 mt-2">为您喜欢的橱窗作品投上宝贵一票</p>

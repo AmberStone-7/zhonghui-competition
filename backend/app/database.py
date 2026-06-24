@@ -5,7 +5,9 @@ from app.config import settings
 
 
 def _to_async_url(url: str) -> str:
-    """Convert Supabase postgresql:// URL to async-compatible postgresql+asyncpg:// URL."""
+    """Convert database URL to async-compatible format."""
+    if url.startswith("sqlite"):
+        return url  # aiosqlite handles sqlite+aiosqlite:/// natively
     if url.startswith("postgres://"):
         url = url.replace("postgres://", "postgresql+asyncpg://", 1)
     elif url.startswith("postgresql://"):
@@ -13,7 +15,17 @@ def _to_async_url(url: str) -> str:
     return url
 
 
-engine = create_async_engine(_to_async_url(settings.database_url), echo=False)
+_is_sqlite = settings.database_url.startswith("sqlite")
+
+if _is_sqlite:
+    engine = create_async_engine(
+        _to_async_url(settings.database_url),
+        echo=False,
+        connect_args={"check_same_thread": False},
+    )
+else:
+    engine = create_async_engine(_to_async_url(settings.database_url), echo=False)
+
 async_session = async_sessionmaker(engine, class_=AsyncSession, expire_on_commit=False)
 
 

@@ -164,7 +164,7 @@ export default function Register() {
     <div className="h5-page">
       {/* === Mobile === */}
       <div className="md:hidden">
-        <div className="h5-hero min-h-[40vh] flex items-center justify-center">
+        <div className="h5-hero min-h-[30vh] flex items-center justify-center">
           <div className="text-center mt-8">
             <img src={`${BASE}assets/logo-gold.png`} alt="Logo" className="w-[180px] h-[75px] object-contain mx-auto mb-4" />
             <h1 className="text-2xl font-bold text-white">报名上传</h1>
@@ -173,12 +173,7 @@ export default function Register() {
         </div>
 
         <div className="-mt-6 relative z-10 px-4 pb-8 space-y-4">
-          {/* Form Card */}
-          <div className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-sm">
-            <FormContent />
-          </div>
-
-          {/* Notice Cards */}
+          {/* Notice Cards FIRST */}
           <div className="bg-brand-rose rounded-xl p-4">
             <p className="text-[#991B1B] font-bold text-[15px] mb-2">报名须知</p>
             <p className="text-[#6B7280] text-[13px] leading-relaxed">· 报名截止后不可修改作品</p>
@@ -192,12 +187,17 @@ export default function Register() {
             <p className="text-[#6B7280] text-[13px] leading-relaxed">· 作品必须为原创橱窗设计</p>
             <p className="text-[#6B7280] text-[13px] leading-relaxed">· 图片数量1-3张，单张≤10MB</p>
           </div>
+
+          {/* Form Card SECOND */}
+          <div className="bg-white/70 backdrop-blur-md rounded-2xl p-6 shadow-sm">
+            <FormContent />
+          </div>
         </div>
       </div>
 
       {/* === PC === */}
       <div className="hidden md:block">
-        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[240px] flex items-center justify-center">
+        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[300px] flex items-center justify-center">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-white">报名上传</h1>
             <p className="text-white/70 mt-2">提交您的橱窗作品，展现门店风采</p>
