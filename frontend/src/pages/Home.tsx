@@ -7,44 +7,46 @@ export default function Home() {
   return (
     <div className="h5-page">
       {/* === Mobile H5 === */}
-      <div className="md:hidden flex flex-col items-center px-4 pt-12 pb-8" style={{ background: "#F0F9FF" }}>
-        {/* MainPaperMark first */}
-        <img src={`${BASE}assets/hero.png`} alt="Main Visual" className="w-[223px] h-[299px] object-contain mb-6" />
+      <div
+        className="md:hidden flex min-h-screen flex-col items-center px-4 pt-0 pb-8"
+        style={{
+          backgroundImage: `url(${BASE}assets/bg-h5-video.png)`,
+          backgroundSize: "cover",
+          backgroundPosition: "center top",
+          backgroundRepeat: "no-repeat",
+        }}
+      >
+        <img
+          src={`${BASE}assets/h5-sample-4.png`}
+          alt="Main Visual"
+          className="mt-0 h-[180px] w-auto object-contain"
+        />
+        <img src={`${BASE}assets/logo-gold.png`} alt="Logo" className="-mt-[12px] h-[155px] w-auto object-contain" />
 
-        {/* LogoGold second */}
-        <img src={`${BASE}assets/logo-gold.png`} alt="Logo" className="w-[227px] h-[95px] object-contain mb-8" />
-
-        {/* Nav Buttons */}
-        <div className="flex flex-col gap-4 w-full max-w-[280px]">
-          <Link to="/register" className="bg-brand-red text-white text-[22px] font-bold py-4 rounded-xl text-center shadow-lg hover:bg-red-800 transition-colors">
-            报名参赛
-          </Link>
-          <Link to="/showcase" className="bg-brand-gold text-white text-[22px] font-bold py-4 rounded-xl text-center shadow-lg hover:bg-amber-700 transition-colors">
-            作品展示
-          </Link>
-          <Link to="/vote" className="bg-brand-red text-white text-[22px] font-bold py-4 rounded-xl text-center shadow-lg hover:bg-red-800 transition-colors">
-            人气投票
-          </Link>
-        </div>
-
-        <div className="flex gap-4 mt-8 mb-12">
-          <Link to="/rules" className="text-text-muted text-[16px] underline underline-offset-4">赛制规则</Link>
-          <span className="text-text-placeholder">|</span>
-          <Link to="/awards" className="text-text-muted text-[16px] underline underline-offset-4">赛事奖项</Link>
+        <div className="mt-4 flex flex-col items-center gap-3 w-full max-w-[280px]">
+          <div className="flex gap-4 w-full">
+            <Link to="/register" className="flex-1 h-11 bg-brand-red text-white rounded-xl text-base font-bold flex items-center justify-center hover:bg-red-800 transition-colors">报名上传</Link>
+            <Link to="/vote" className="flex-1 h-11 bg-brand-gold text-white rounded-xl text-base font-bold flex items-center justify-center hover:bg-amber-700 transition-colors">人气投票</Link>
+          </div>
+          <div className="flex gap-3 w-full">
+            <Link to="/showcase" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">作品展示</Link>
+            <Link to="/rules" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">赛事规则</Link>
+            <Link to="/awards" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">赛事奖项</Link>
+          </div>
         </div>
       </div>
 
       {/* === PC Layout === */}
       <div className="hidden md:block">
-        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[300px] flex items-center justify-center">
-          <div className="text-center">
-            <img src={`${BASE}assets/logo-gold.png`} alt="Logo" className="w-[180px] h-[75px] object-contain mx-auto mb-4" />
-            <h1 className="text-3xl font-bold text-white">中汇文具 20 周年 · 特别橱窗大赛</h1>
-            <p className="text-white/70 mt-2">用橱窗展现你的创意，赢取丰厚奖品</p>
-          </div>
-        </div>
-
-        <div className="max-w-6xl mx-auto px-6 -mt-8 relative z-10 pb-12">
+        <div
+          className="relative h-[320px] overflow-hidden"
+          style={{
+            backgroundImage: `url(${BASE}assets/banner.png)`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+          }}
+        />
+        <div className="max-w-6xl mx-auto px-6 mt-8 relative z-10 pb-12">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
             <div className="grid grid-cols-3 gap-6">
               <Link to="/register" className="flex flex-col items-center gap-4 p-6 rounded-xl bg-brand-rose hover:bg-red-100 transition-colors group">

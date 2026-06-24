@@ -1,41 +1,20 @@
+import MobilePrototypeHero from "../components/MobilePrototypeHero";
+import PcBannerImage from "../components/PcBannerImage";
+
+const BASE = import.meta.env.BASE_URL;
 const sections = [
-  {
-    title: "专业评审类",
-    items: [
-      { name: "综合评分第一名", prize: "¥5000奖品" },
-      { name: "综合评分第二、三名", prize: "¥3000奖品" },
-      { name: "综合评分第四至六名", prize: "¥1000奖品" },
-    ],
-  },
-  {
-    title: "人气投票类",
-    items: [
-      { name: "获票数最多的作品", prize: "¥3000奖品" },
-      { name: "票数第二至四名", prize: "¥1000奖品" },
-    ],
-  },
-  {
-    title: "特别奖项",
-    items: [
-      { name: "最具创意的橱窗设计", prize: "¥2000奖品" },
-      { name: "所有成功报名者均可获得", prize: "精美纪念品" },
-    ],
-  },
+  { title: "专业评审类", items: [{ name: "综合评分第一名", prize: "¥5000奖品" }, { name: "综合评分第二、三名", prize: "¥3000奖品" }, { name: "综合评分第四至六名", prize: "¥1000奖品" }] },
+  { title: "人气投票类", items: [{ name: "获票数最多的作品", prize: "¥3000奖品" }, { name: "票数第二至四名", prize: "¥1000奖品" }] },
+  { title: "特别奖项", items: [{ name: "最具创意的橱窗设计", prize: "¥2000奖品" }, { name: "所有成功报名者均可获得", prize: "精美纪念品" }] },
 ];
 
 export default function Awards() {
   return (
     <div className="h5-page">
       {/* === Mobile === */}
-      <div className="md:hidden">
-        <div className="h5-hero min-h-[35vh] flex items-center justify-center">
-          <div className="text-center mt-8">
-            <h1 className="text-2xl font-bold text-white">赛事奖项</h1>
-            <p className="text-white/60 text-sm mt-1">丰厚奖品等你来拿</p>
-          </div>
-        </div>
-
-        <div className="-mt-6 relative z-10 px-4 pb-8 space-y-6">
+      <div className="md:hidden min-h-screen" style={{ backgroundImage: `url(${BASE}assets/bg-h5-video.png)`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
+        <MobilePrototypeHero />
+        <div className="relative z-10 px-4 pb-8 pt-[12px] space-y-6">
           {sections.map((sec, si) => (
             <div key={si}>
               <div className="flex items-center gap-3 mb-3">
@@ -54,17 +33,10 @@ export default function Awards() {
           ))}
         </div>
       </div>
-
       {/* === PC === */}
       <div className="hidden md:block">
-        <div className="relative bg-gradient-to-b from-[#1a0a0a] via-[#6B1A1A] to-[#a02020] h-[300px] flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-3xl font-bold text-white">赛事奖项</h1>
-            <p className="text-white/70 mt-2">丰厚奖品，等你来拿</p>
-          </div>
-        </div>
-
-        <div className="max-w-4xl mx-auto px-6 -mt-8 relative z-10 pb-12">
+        <PcBannerImage />
+        <div className="max-w-[1104px] mx-auto px-6 mt-8 relative z-10 pb-12">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
             <div className="grid grid-cols-3 gap-8">
               {sections.map((sec, si) => (

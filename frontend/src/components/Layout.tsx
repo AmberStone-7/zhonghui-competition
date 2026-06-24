@@ -34,7 +34,7 @@ export default function Layout() {
       </div>
 
       {/* Brand */}
-          <Link to="/" className="flex items-center gap-3 shrink-0">
+          <div className="hidden sm:flex items-center gap-3 shrink-0">
             <div className="w-[64px] h-[38px] sm:w-[84px] sm:h-[48px] flex items-center justify-center">
               <img src={`${BASE}assets/logo-gold.png`} alt="中汇文具" className="max-w-full max-h-full object-contain" />
             </div>
@@ -42,7 +42,7 @@ export default function Layout() {
               <span className="font-bold text-sm sm:text-base text-[#111111]">中汇文具</span>
               <span className="text-[11px] sm:text-xs text-[#F52222] font-semibold">20周年 · 特别橱窗大赛</span>
             </div>
-          </Link>
+          </div>
 
           {/* Navigation */}
           <nav className="pc-header-nav grid grid-cols-5 gap-1 w-full sm:w-auto sm:flex sm:items-center sm:gap-1">
