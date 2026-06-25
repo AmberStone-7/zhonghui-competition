@@ -23,3 +23,4 @@ COPY backend/ .
 RUN cp -r /app/frontend/dist /app/static
 
 CMD ["bash", "startup.sh"]
+# 2026-06-25
