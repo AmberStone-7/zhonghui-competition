@@ -23,4 +23,3 @@ COPY backend/ .
 RUN cp -r /app/frontend/dist /app/static
 
 CMD ["bash", "startup.sh"]
-Thu Jun 25 19:24:04 CST 2026
