@@ -1,8 +1,14 @@
 FROM python:3.12-slim
 
+# Install system build dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    python3-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
 # Install Node.js for frontend build
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash - && \
+RUN curl -fsSL https://deb.nodesource.com/setup_22.x | bash - && \
     apt-get install -y --no-install-recommends nodejs && \
     rm -rf /var/lib/apt/lists/*
 
