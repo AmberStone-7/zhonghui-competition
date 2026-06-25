@@ -9,7 +9,7 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     css: true,
   },
-  base: '/',
+  base: '/zhonghui-competition/',
   server: {
     proxy: {
       '/api': {

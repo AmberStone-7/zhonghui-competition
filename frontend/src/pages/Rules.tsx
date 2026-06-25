@@ -1,16 +1,20 @@
 import MobilePrototypeHero from "../components/MobilePrototypeHero";
 import PcBannerImage from "../components/PcBannerImage";
+import { useLanguage } from "../hooks/useLanguage";
 
 const BASE = import.meta.env.BASE_URL;
-const rules = [
-  { num: 1, title: "参赛资格", items: ["所有经销商及合作伙伴均可参赛", "参赛者需为橱窗的实际负责人", "每位参赛者仅限提交一个作品"] },
-  { num: 2, title: "作品要求", items: ["作品必须为原创橱窗设计", "图片需清晰展示橱窗全貌", "禁止使用他人作品或网络图片"] },
-  { num: 3, title: "报名流程", items: ["填写真实有效的报名信息", "上传 1-3 张作品图片", "提交后等待管理员审核"] },
-  { num: 4, title: "评审规则", items: ["专业评审占总评分 70%", "人气投票占总评分 30%", "评审结果将在活动结束后公布"] },
-  { num: 5, title: "投票规则", items: ["每个手机号每天可投一票", "禁止刷票行为", "投票结果实时显示"] },
-];
 
 export default function Rules() {
+  const { t } = useLanguage();
+
+  const rules = [
+    { num: 1, title: t["rules.eligibility"], items: [t["rules.eligibility1"], t["rules.eligibility2"], t["rules.eligibility3"]] },
+    { num: 2, title: t["rules.requirements"], items: [t["rules.requirements1"], t["rules.requirements2"], t["rules.requirements3"]] },
+    { num: 3, title: t["rules.process"], items: [t["rules.process1"], t["rules.process2"], t["rules.process3"]] },
+    { num: 4, title: t["rules.judging"], items: [t["rules.judging1"], t["rules.judging2"], t["rules.judging3"]] },
+    { num: 5, title: t["rules.voting"], items: [t["rules.voting1"], t["rules.voting2"], t["rules.voting3"]] },
+  ];
+
   return (
     <div className="h5-page">
       {/* === Mobile === */}
@@ -33,8 +37,8 @@ export default function Rules() {
             </div>
           ))}
           <div className="bg-[#FEF9E7] rounded-xl p-4">
-            <p className="text-[#92400E] font-bold text-sm mb-1">特别说明</p>
-            <p className="text-[#92400E] text-[12px] leading-relaxed">主办方保留解释权和修改权。违规者取消参赛资格。</p>
+            <p className="text-[#92400E] font-bold text-sm mb-1">{t["rules.note"]}</p>
+            <p className="text-[#92400E] text-[12px] leading-relaxed">{t["rules.noteText"]}</p>
           </div>
         </div>
       </div>
@@ -44,7 +48,7 @@ export default function Rules() {
         <div className="max-w-[1104px] mx-auto px-6 mt-8 relative z-10 pb-12">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
             <h2 className="text-lg font-bold text-[#1E293B] mb-6 flex items-center gap-2">
-              <span className="w-5 h-5 bg-brand-red rounded-full" /> 比赛规则
+              <span className="w-5 h-5 bg-brand-red rounded-full" /> {t["rules.title"]}
             </h2>
             <div className="grid grid-cols-2 gap-x-12 gap-y-5">
               {rules.map((r) => (
@@ -62,8 +66,8 @@ export default function Rules() {
               ))}
             </div>
             <div className="bg-[#FEF9E7] rounded-lg p-4 mt-6">
-              <p className="text-[#92400E] font-bold text-sm mb-1">特别说明</p>
-              <p className="text-[#92400E] text-[12px]">主办方保留解释权和修改权。违规者取消参赛资格。</p>
+              <p className="text-[#92400E] font-bold text-sm mb-1">{t["rules.note"]}</p>
+              <p className="text-[#92400E] text-[12px]">{t["rules.noteText"]}</p>
             </div>
           </div>
         </div>

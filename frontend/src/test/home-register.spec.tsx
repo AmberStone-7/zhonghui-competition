@@ -1,6 +1,7 @@
 import { describe, expect, test, beforeEach } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { LanguageProvider } from '../hooks/useLanguage';
 import Home from '../pages/Home';
 import Register from '../pages/Register';
 import Auth from '../pages/Auth';
@@ -10,11 +11,15 @@ import Awards from '../pages/Awards';
 import Vote from '../pages/Vote';
 import Layout from '../components/Layout';
 
+function renderWithLang(ui: React.ReactElement) {
+  return render(<LanguageProvider>{ui}</LanguageProvider>);
+}
+
 describe('prototype alignment', () => {
   beforeEach(() => { document.body.innerHTML = ''; });
 
   test('home mobile uses prototype background and source assets', () => {
-    const { container } = render(<MemoryRouter><Home /></MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter><Home /></MemoryRouter>);
     const mobileRoot = container.querySelector('.md\\:hidden');
     expect(mobileRoot).not.toBeNull();
     expect((mobileRoot as HTMLElement).style.backgroundImage).toContain('bg-h5-video.png');
@@ -28,7 +33,7 @@ describe('prototype alignment', () => {
   });
 
   test('auth page uses prototype background and hero assets', () => {
-    const { container } = render(<MemoryRouter><Auth /></MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter><Auth /></MemoryRouter>);
     const mobileRoot = container.querySelector('.md\\:hidden');
     expect(mobileRoot).not.toBeNull();
     expect((mobileRoot as HTMLElement).style.backgroundImage).toContain('bg-h5-video.png');
@@ -37,7 +42,7 @@ describe('prototype alignment', () => {
   });
 
   test('auth confirm sets sessionStorage', () => {
-    const { container } = render(<MemoryRouter><Auth /></MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter><Auth /></MemoryRouter>);
     const mobileRoot = container.querySelector('.md\\:hidden');
     expect(mobileRoot).not.toBeNull();
     const confirmButton = within(mobileRoot as HTMLElement).getByRole('button', { name: '确认授权' });
@@ -46,7 +51,7 @@ describe('prototype alignment', () => {
   });
 
   test('register uses prototype assets and bg', () => {
-    const { container } = render(<Register />);
+    const { container } = renderWithLang(<Register />);
     const mobileRoot = container.querySelector('.md\\:hidden');
     expect(mobileRoot).not.toBeNull();
     expect((mobileRoot as HTMLElement).style.backgroundImage).toContain('bg-h5-video.png');
@@ -61,7 +66,7 @@ describe('prototype alignment', () => {
     ['awards', <Awards />],
     ['vote', <Vote />],
   ])('%s mobile uses bg-h5-video and has min-h-screen', (_name, page) => {
-    const { container } = render(<MemoryRouter>{page}</MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter>{page}</MemoryRouter>);
     const mobileRoot = container.querySelector('.md\\:hidden');
     expect(mobileRoot).not.toBeNull();
     expect((mobileRoot as HTMLElement).style.backgroundImage).toContain('bg-h5-video.png');
@@ -69,7 +74,7 @@ describe('prototype alignment', () => {
   });
 
   test('home pc banner has no overlay or text', () => {
-    const { container } = render(<MemoryRouter><Home /></MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter><Home /></MemoryRouter>);
     const pcRoot = container.querySelector('.hidden.md\\:block');
     expect(pcRoot).not.toBeNull();
     const overlay = (pcRoot as HTMLElement).querySelector('.bg-black\\/25');
@@ -88,7 +93,7 @@ describe('prototype alignment', () => {
       { name: 'register', el: <Register /> },
     ];
     for (const { name, el } of pages) {
-      const { container } = render(el);
+      const { container } = renderWithLang(el);
       const pcRoot = container.querySelector('.hidden.md\\:block');
       expect(pcRoot, `${name}: PC root should exist`).not.toBeNull();
       expect((pcRoot as HTMLElement).querySelector('.max-w-\\[1104px\\]'), `${name}: should use max-w-[1104px]`).not.toBeNull();
@@ -99,7 +104,7 @@ describe('prototype alignment', () => {
 describe('auth redirect behavior', () => {
   test('auth confirm navigates PC to /register when width >= 768', () => {
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 1024 });
-    const { container } = render(<MemoryRouter><Auth /></MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter><Auth /></MemoryRouter>);
     const pcRoot = container.querySelector('.hidden.md\\:flex');
     expect(pcRoot).not.toBeNull();
     const confirmBtn = within(pcRoot as HTMLElement).getByRole('button', { name: '确认授权' });
@@ -109,7 +114,7 @@ describe('auth redirect behavior', () => {
 
   test('auth confirm navigates mobile to / when width < 768', () => {
     Object.defineProperty(window, 'innerWidth', { writable: true, configurable: true, value: 390 });
-    const { container } = render(<MemoryRouter><Auth /></MemoryRouter>);
+    const { container } = renderWithLang(<MemoryRouter><Auth /></MemoryRouter>);
     const mobileRoot = container.querySelector('.md\\:hidden');
     expect(mobileRoot).not.toBeNull();
     const confirmBtn = within(mobileRoot as HTMLElement).getByRole('button', { name: '确认授权' });
@@ -120,15 +125,11 @@ describe('auth redirect behavior', () => {
 
 describe('mobile header no duplication', () => {
   test('Layout Brand section hidden on mobile', () => {
-    const { container } = render(
+    const { container } = renderWithLang(
       <MemoryRouter initialEntries={['/showcase']}>
         <Layout />
       </MemoryRouter>
     );
-    // The Brand link should have hidden sm:flex so it's invisible on mobile
-    const brandLinks = container.querySelectorAll('header a[href="/"]');
-    // One Brand link (desktop) + one mobile-only link = 2
-    // But the desktop one should be hidden on mobile
     const hiddenBrand = container.querySelector("header div.hidden.sm\\:flex");
     expect(hiddenBrand).not.toBeNull();
   });
@@ -136,19 +137,18 @@ describe('mobile header no duplication', () => {
 
 describe('desktop brand is not a link', () => {
   test('PC Brand section is a div, not a Link to home', () => {
-    const { container } = render(
+    const { container } = renderWithLang(
       <MemoryRouter initialEntries={['/register']}>
         <Layout />
       </MemoryRouter>
     );
-    // The desktop Brand (hidden sm:flex) should be a div, not an <a>
     const desktopBrand = container.querySelector('header .hidden.sm\\:flex');
     expect(desktopBrand).not.toBeNull();
     expect(desktopBrand!.tagName).toBe('DIV');
   });
 
   test('mobile-only bar still links to home', () => {
-    const { container } = render(
+    const { container } = renderWithLang(
       <MemoryRouter initialEntries={['/register']}>
         <Layout />
       </MemoryRouter>

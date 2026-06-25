@@ -1,9 +1,11 @@
 import { useNavigate } from "react-router-dom";
+import { useLanguage } from "../hooks/useLanguage";
 
 const BASE = import.meta.env.BASE_URL;
 
 export default function Auth() {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleConfirm = () => {
     sessionStorage.setItem("data_authorized", "1");
@@ -28,25 +30,25 @@ export default function Auth() {
         </div>
 
         <div className="mx-auto mt-[8px] w-full max-w-[322px] rounded-[30px] bg-[#D9B6B6B8] px-[18px] py-[24px]">
-          <p className="mb-[28px] text-center text-[22px] font-bold text-[#61636C]">iResearch</p>
+          <p className="mb-[28px] text-center text-[22px] font-bold text-[#61636C]">{t["auth.title"]}</p>
           <p className="mb-[18px] text-[11px] leading-[1.7] text-white">
-            为保障活动的公平性与透明度，参与者授权主办方
+            {t["auth.text1"]}
             <br />
-            收集并使用报名信息用于活动管理
+            {t["auth.text1b"]}
           </p>
           <p className="mb-[18px] text-[11px] leading-[1.7] text-white">
-            所有活动数据将通过第三方专业数据管理平台进行
+            {t["auth.text2"]}
             <br />
-            自动化记录、存储、统计与核验，确保参与资格、
+            {t["auth.text2b"]}
             <br />
-            抽奖结果及评选数据真实有效、可追溯
+            {t["auth.text2c"]}
           </p>
           <p className="text-[11px] leading-[1.7] text-white">
-            主办方承诺严格遵守相关数据保护规定，对参与者
+            {t["auth.text3"]}
             <br />
-            信息进行安全管理，未经授权不会向第三方披露或
+            {t["auth.text3b"]}
             <br />
-            用于其他商业用途
+            {t["auth.text3c"]}
           </p>
         </div>
 
@@ -54,13 +56,13 @@ export default function Auth() {
           <button
             className="h-[56px] w-[118px] rounded-[12px] border border-white/35 bg-white/12 text-[22px] font-bold text-white backdrop-blur-sm"
           >
-            取消授权
+            {t["auth.cancel"]}
           </button>
           <button
             onClick={handleConfirm}
             className="h-[56px] w-[118px] rounded-[12px] bg-[#D91C1C] text-[22px] font-bold text-white"
           >
-            确认授权
+            {t["auth.confirm"]}
           </button>
         </div>
       </div>
@@ -79,17 +81,17 @@ export default function Auth() {
         </div>
 
         <div className="mt-2 w-[960px] rounded-[38px] bg-[#D7B1B1B8] px-[130px] py-[36px]">
-          <p className="mb-10 text-center text-[44px] font-bold text-[#61636C]">iResearch</p>
+          <p className="mb-10 text-center text-[44px] font-bold text-[#61636C]">{t["auth.title"]}</p>
           <p className="mb-8 text-2xl leading-[1.8] text-white">
-            为保障活动的公平性与透明度，参与者授权主办方
+            {t["auth.text1"]}
             <br />
-            收集并使用报名信息用于活动管理
+            {t["auth.text1b"]}
           </p>
           <p className="mb-8 text-2xl leading-[1.8] text-white">
-            所有活动数据将通过第三方专业数据管理平台进行自动化记录、存储、统计与核验，确保参与资格、抽奖结果及评选数据真实有效、可追溯
+            {t["auth.text2"]}{t["auth.text2b"]}{t["auth.text2c"]}
           </p>
           <p className="text-2xl leading-[1.8] text-white">
-            主办方承诺严格遵守相关数据保护规定，对参与者信息进行安全管理，未经授权不会向第三方披露或用于其他商业用途
+            {t["auth.text3"]}{t["auth.text3b"]}{t["auth.text3c"]}
           </p>
         </div>
 
@@ -97,13 +99,13 @@ export default function Auth() {
           <button
             className="h-[78px] w-[200px] rounded-[16px] border border-white/35 bg-white/12 text-3xl font-bold text-white backdrop-blur-sm"
           >
-            取消授权
+            {t["auth.cancel"]}
           </button>
           <button
             onClick={handleConfirm}
             className="h-[78px] w-[200px] rounded-[16px] bg-[#D91C1C] text-3xl font-bold text-white"
           >
-            确认授权
+            {t["auth.confirm"]}
           </button>
         </div>
       </div>

@@ -1,5 +1,6 @@
 import { type ReactNode, useState } from "react";
 import { ImageOff } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 interface WorkCardProps {
   work_number: string;
@@ -10,6 +11,7 @@ interface WorkCardProps {
 }
 
 export default function WorkCard({ work_number, name_masked, images, vote_count, action }: WorkCardProps) {
+  const { t } = useLanguage();
   const hasImage = images.length > 0;
   const [imgError, setImgError] = useState(false);
 
@@ -35,7 +37,7 @@ export default function WorkCard({ work_number, name_masked, images, vote_count,
             {work_number}
           </span>
           <span className="bg-black/50 backdrop-blur-sm text-white/80 px-2 py-0.5 rounded text-xs">
-            {vote_count}票
+            {vote_count}{t["vote.votes"]}
           </span>
         </div>
       </div>

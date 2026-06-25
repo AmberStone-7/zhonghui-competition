@@ -1,14 +1,18 @@
 import MobilePrototypeHero from "../components/MobilePrototypeHero";
 import PcBannerImage from "../components/PcBannerImage";
+import { useLanguage } from "../hooks/useLanguage";
 
 const BASE = import.meta.env.BASE_URL;
-const sections = [
-  { title: "专业评审类", items: [{ name: "综合评分第一名", prize: "¥5000奖品" }, { name: "综合评分第二、三名", prize: "¥3000奖品" }, { name: "综合评分第四至六名", prize: "¥1000奖品" }] },
-  { title: "人气投票类", items: [{ name: "获票数最多的作品", prize: "¥3000奖品" }, { name: "票数第二至四名", prize: "¥1000奖品" }] },
-  { title: "特别奖项", items: [{ name: "最具创意的橱窗设计", prize: "¥2000奖品" }, { name: "所有成功报名者均可获得", prize: "精美纪念品" }] },
-];
 
 export default function Awards() {
+  const { t } = useLanguage();
+
+  const sections = [
+    { title: t["awards.professional"], items: [{ name: t["awards.professional1.name"], prize: t["awards.professional1.prize"] }, { name: t["awards.professional2.name"], prize: t["awards.professional2.prize"] }, { name: t["awards.professional3.name"], prize: t["awards.professional3.prize"] }] },
+    { title: t["awards.popular"], items: [{ name: t["awards.popular1.name"], prize: t["awards.popular1.prize"] }, { name: t["awards.popular2.name"], prize: t["awards.popular2.prize"] }] },
+    { title: t["awards.special"], items: [{ name: t["awards.special1.name"], prize: t["awards.special1.prize"] }, { name: t["awards.special2.name"], prize: t["awards.special2.prize"] }] },
+  ];
+
   return (
     <div className="h5-page">
       {/* === Mobile === */}

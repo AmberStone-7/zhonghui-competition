@@ -1,24 +1,27 @@
 import { Outlet, Link, useLocation } from "react-router-dom";
 import { ClipboardList, Image, ScrollText, Trophy, ThumbsUp, type LucideIcon } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 const BASE = import.meta.env.BASE_URL;
 
 interface NavItem {
   path: string;
-  label: string;
+  labelKey: "nav.register" | "nav.showcase" | "nav.rules" | "nav.awards" | "nav.vote";
   icon: LucideIcon;
 }
 
 const navItems: NavItem[] = [
-  { path: "/register", label: "报名上传", icon: ClipboardList },
-  { path: "/showcase", label: "作品展示", icon: Image },
-  { path: "/rules", label: "赛制规则", icon: ScrollText },
-  { path: "/awards", label: "赛事奖项", icon: Trophy },
-  { path: "/vote", label: "人气投票", icon: ThumbsUp },
+  { path: "/register", labelKey: "nav.register", icon: ClipboardList },
+  { path: "/showcase", labelKey: "nav.showcase", icon: Image },
+  { path: "/rules", labelKey: "nav.rules", icon: ScrollText },
+  { path: "/awards", labelKey: "nav.awards", icon: Trophy },
+  { path: "/vote", labelKey: "nav.vote", icon: ThumbsUp },
 ];
 
 export default function Layout() {
   const location = useLocation();
+  const { t } = useLanguage();
 
   return (
     <div className="min-h-screen flex flex-col bg-brand-bg">
@@ -26,21 +29,22 @@ export default function Layout() {
       <header className="bg-white/95 backdrop-blur-sm border-b border-gray-100 sticky top-0 z-50 shadow-sm">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 min-h-[72px] py-3 flex flex-col gap-3 sm:h-[72px] sm:flex-row sm:items-center sm:justify-between">
           {/* Mobile Simplified Bar */}
-      <div className="mobile-only flex items-center justify-between px-4 py-3 border-b border-gray-100 sm:hidden">
-        <Link to="/" className="flex items-center gap-3">
-          <img src={`${BASE}assets/logo-gold.png`} alt="中汇文具" className="w-10 h-6 object-contain" />
-          <span className="font-bold text-sm text-[#111111]">中汇文具 20 周年</span>
-        </Link>
-      </div>
+          <div className="mobile-only flex items-center justify-between px-4 py-3 border-b border-gray-100 sm:hidden">
+            <Link to="/" className="flex items-center gap-3">
+              <img src={`${BASE}assets/logo-gold.png`} alt="中汇文具" className="w-10 h-6 object-contain" />
+              <span className="font-bold text-sm text-[#111111]">{t["header.brand"]}</span>
+            </Link>
+            <LanguageSwitcher />
+          </div>
 
-      {/* Brand */}
+          {/* Brand */}
           <div className="hidden sm:flex items-center gap-3 shrink-0">
-            <div className="w-[64px] h-[38px] sm:w-[84px] sm:h-[48px] flex items-center justify-center">
+            <div className="w-[100px] h-[56px] sm:w-[140px] sm:h-[80px] flex items-center justify-center">
               <img src={`${BASE}assets/logo-gold.png`} alt="中汇文具" className="max-w-full max-h-full object-contain" />
             </div>
             <div className="flex flex-col leading-tight">
-              <span className="font-bold text-sm sm:text-base text-[#111111]">中汇文具</span>
-              <span className="text-[11px] sm:text-xs text-[#F52222] font-semibold">20周年 · 特别橱窗大赛</span>
+              <span className="font-bold text-sm sm:text-lg text-[#111111]">{t["header.brand"]}</span>
+              <span className="text-[11px] sm:text-sm text-[#F52222] font-semibold">{t["header.subtitle"]}</span>
             </div>
           </div>
 
@@ -60,11 +64,16 @@ export default function Layout() {
                   }`}
                 >
                   <Icon className="w-4 h-4 shrink-0" />
-                  {item.label}
+                  {t[item.labelKey]}
                 </Link>
               );
             })}
           </nav>
+
+          {/* Language Switcher — desktop only (mobile already has it in the bar) */}
+          <div className="hidden sm:flex items-center justify-start">
+            <LanguageSwitcher />
+          </div>
         </div>
       </header>
 

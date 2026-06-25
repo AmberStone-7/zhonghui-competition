@@ -1,9 +1,12 @@
 import { Link } from "react-router-dom";
 import { ClipboardList, Image, ThumbsUp } from "lucide-react";
+import { useLanguage } from "../hooks/useLanguage";
 
 const BASE = import.meta.env.BASE_URL;
 
 export default function Home() {
+  const { t } = useLanguage();
+
   return (
     <div className="h5-page">
       {/* === Mobile H5 === */}
@@ -25,13 +28,13 @@ export default function Home() {
 
         <div className="mt-4 flex flex-col items-center gap-3 w-full max-w-[280px]">
           <div className="flex gap-4 w-full">
-            <Link to="/register" className="flex-1 h-11 bg-brand-red text-white rounded-xl text-base font-bold flex items-center justify-center hover:bg-red-800 transition-colors">报名上传</Link>
-            <Link to="/vote" className="flex-1 h-11 bg-brand-gold text-white rounded-xl text-base font-bold flex items-center justify-center hover:bg-amber-700 transition-colors">人气投票</Link>
+            <Link to="/register" className="flex-1 h-11 bg-brand-red text-white rounded-xl text-base font-bold flex items-center justify-center hover:bg-red-800 transition-colors">{t["home.register"]}</Link>
+            <Link to="/vote" className="flex-1 h-11 bg-brand-gold text-white rounded-xl text-base font-bold flex items-center justify-center hover:bg-amber-700 transition-colors">{t["home.vote"]}</Link>
           </div>
           <div className="flex gap-3 w-full">
-            <Link to="/showcase" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">作品展示</Link>
-            <Link to="/rules" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">赛事规则</Link>
-            <Link to="/awards" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">赛事奖项</Link>
+            <Link to="/showcase" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">{t["home.showcase"]}</Link>
+            <Link to="/rules" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">{t["home.rules"]}</Link>
+            <Link to="/awards" className="flex-1 h-9 border border-white/40 bg-white/10 backdrop-blur-sm text-white rounded-lg text-[13px] font-bold flex items-center justify-center hover:bg-white/20 transition-colors">{t["home.awards"]}</Link>
           </div>
         </div>
       </div>
@@ -51,18 +54,18 @@ export default function Home() {
             <div className="grid grid-cols-3 gap-6">
               <Link to="/register" className="flex flex-col items-center gap-4 p-6 rounded-xl bg-brand-rose hover:bg-red-100 transition-colors group">
                 <ClipboardList className="w-10 h-10 text-brand-red" />
-                <span className="text-lg font-bold text-brand-red group-hover:text-red-800">报名参赛</span>
-                <span className="text-sm text-text-muted text-center">提交您的橱窗作品，参与评选</span>
+                <span className="text-lg font-bold text-brand-red group-hover:text-red-800">{t["home.signup"]}</span>
+                <span className="text-sm text-text-muted text-center">{t["home.signupDesc"]}</span>
               </Link>
               <Link to="/showcase" className="flex flex-col items-center gap-4 p-6 rounded-xl bg-brand-cream hover:bg-amber-100 transition-colors group">
                 <Image className="w-10 h-10 text-brand-gold" />
-                <span className="text-lg font-bold text-brand-gold group-hover:text-amber-800">作品展示</span>
-                <span className="text-sm text-text-muted text-center">浏览所有参赛橱窗作品</span>
+                <span className="text-lg font-bold text-brand-gold group-hover:text-amber-800">{t["home.showcase"]}</span>
+                <span className="text-sm text-text-muted text-center">{t["home.showcaseDesc"]}</span>
               </Link>
               <Link to="/vote" className="flex flex-col items-center gap-4 p-6 rounded-xl bg-brand-pink hover:bg-red-100 transition-colors group">
                 <ThumbsUp className="w-10 h-10 text-brand-red" />
-                <span className="text-lg font-bold text-brand-red group-hover:text-red-800">人气投票</span>
-                <span className="text-sm text-text-muted text-center">为您喜欢的作品投上一票</span>
+                <span className="text-lg font-bold text-brand-red group-hover:text-red-800">{t["home.vote"]}</span>
+                <span className="text-sm text-text-muted text-center">{t["home.voteDesc"]}</span>
               </Link>
             </div>
           </div>

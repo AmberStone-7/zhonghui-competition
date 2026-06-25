@@ -12,7 +12,7 @@ import Vote from "./pages/Vote";
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 
-const BASENAME = "/static";
+const BASENAME = import.meta.env.PROD ? "/zhonghui-competition" : "/static";
 
 export default function App() {
   return (
