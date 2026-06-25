@@ -9,11 +9,11 @@ export default defineConfig({
     setupFiles: './src/test/setup.ts',
     css: true,
   },
-  base: '/zhonghui-competition/',
+  base: '/',
   server: {
     proxy: {
       '/api': {
-        target: 'https://zhonghui-competition-production.up.railway.app',
+        target: 'http://localhost:8000',
         changeOrigin: true,
         secure: false,
       }

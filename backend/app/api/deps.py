@@ -1,3 +1,4 @@
+from uuid import UUID
 # backend/app/api/deps.py
 from datetime import datetime, timedelta, timezone
 
@@ -19,7 +20,7 @@ async def get_current_admin(
 ) -> AdminUser:
     try:
         payload = jwt.decode(credentials.credentials, settings.jwt_secret_key, algorithms=[settings.jwt_algorithm])
-        user_id: str = payload.get("sub")
+        user_id = UUID(payload.get("sub"))
         if user_id is None:
             raise HTTPException(status_code=401, detail="无效的 Token")
     except JWTError:

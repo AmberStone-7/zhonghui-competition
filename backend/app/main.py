@@ -3,7 +3,6 @@ import os
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from app.config import settings
 from app.middleware import RateLimitMiddleware, RequestLoggingMiddleware
@@ -74,16 +73,9 @@ for d in _candidates:
 
 if STATIC_DIR:
     logger.info(f"Serving static files from: {STATIC_DIR}")
-    app.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")
+    # Mount static files at root so /assets/... resolves correctly
+    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
-    @app.get("/{full_path:path}", response_class=HTMLResponse)
-    async def serve_spa(full_path: str):
-        index_path = os.path.join(STATIC_DIR, "index.html")
-        if os.path.isfile(index_path):
-            with open(index_path, "r", encoding="utf-8") as f:
-                return f.read()
-        return HTMLResponse("<h1>Frontend not built</h1>", status_code=404)
-else:
     logger.warning(f"No static directory found. Checked: {_candidates}")
     logger.warning(f"cwd={os.getcwd()}, __file__={__file__}")
     for d in _candidates:
