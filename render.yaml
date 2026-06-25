@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: zhonghui-api
+    env: docker
+    dockerfilePath: ./Dockerfile
+    envVars:
+      - key: DATABASE_URL
+        value: sqlite+aiosqlite:///data.db
+      - key: SUPABASE_URL
+        value: https://demo.supabase.co
+      - key: SUPABASE_KEY
+        value: demo-key
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: JWT_ALGORITHM
+        value: HS256
+      - key: JWT_EXPIRE_HOURS
+        value: "24"
+      - key: FRONTEND_URL
+        value: https://amberstone-7.github.io/zhonghui-competition
+      - key: ALLOWED_ORIGINS
+        value: https://amberstone-7.github.io,http://localhost:5173,http://localhost:8000,https://zhonghui-api.onrender.com
