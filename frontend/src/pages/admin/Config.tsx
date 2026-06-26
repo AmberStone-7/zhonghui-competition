@@ -137,16 +137,16 @@ export default function Config() {
               </tr></thead>
               <tbody>
                 {[
-                  { id: "admin", role: "超级管理员", desc: "系统超级管理员", pwd: "admin123" },
-                  { id: "scorer_a", role: "评分员A", desc: "A维度评分（品牌）", pwd: "scorer123" },
-                  { id: "scorer_b", role: "评分员B", desc: "B维度评分（视觉）", pwd: "scorer123" },
-                  { id: "scorer_c", role: "评分员C", desc: "C维度评分（陈列）", pwd: "scorer123" },
-                  { id: "scorer_d", role: "评分员D", desc: "D维度评分（执行）", pwd: "scorer123" },
+                  { id: "admin", role: "超级管理员", desc: "系统超级管理员" },
+                  { id: "scorer_a", role: "评分员A", desc: "A维度评分（品牌）" },
+                  { id: "scorer_b", role: "评分员B", desc: "B维度评分（视觉）" },
+                  { id: "scorer_c", role: "评分员C", desc: "C维度评分（陈列）" },
+                  { id: "scorer_d", role: "评分员D", desc: "D维度评分（执行）" },
                 ].map((user) => (
                   <tr key={user.id}>
                     <td className="border-t border-gray-200 px-4 py-2 text-sm font-mono text-gray-900">{user.id}</td>
                     <td className="border-t border-gray-200 px-4 py-2 text-sm text-gray-700">{user.role}</td>
-                    <td className="border-t border-gray-200 px-4 py-2 text-sm text-gray-500">{user.desc}{isMockMode() ? ` — 密码: ${user.pwd}` : ""}</td>
+                    <td className="border-t border-gray-200 px-4 py-2 text-sm text-gray-500">{user.desc}</td>
                   </tr>
                 ))}
               </tbody>

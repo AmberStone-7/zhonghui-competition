@@ -1,3 +1,4 @@
+import type { Work } from "../types";
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import api from "../api/client";
@@ -8,13 +9,6 @@ import PcBannerImage from "../components/PcBannerImage";
 import { useLanguage } from "../hooks/useLanguage";
 
 const BASE = import.meta.env.BASE_URL;
-interface Work {
-  id: string;
-  work_number: string;
-  name_masked: string;
-  images: string[];
-  vote_count: number;
-}
 
 export default function Vote() {
   const { t } = useLanguage();
@@ -26,6 +20,7 @@ export default function Vote() {
   const [voteSuccess, setVoteSuccess] = useState<string | null>(null);
   const [channelStatus, setChannelStatus] = useState<string>("closed");
   const [usingMock, setUsingMock] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
   const size = 8;
 
   useEffect(() => {
@@ -60,7 +55,7 @@ export default function Vote() {
       }
     };
     fetchWorks();
-  }, [page]);
+  }, [page, refreshKey]);
 
   const totalPages = Math.ceil(total / size);
   const isOpen = channelStatus === "open";
@@ -149,7 +144,7 @@ export default function Vote() {
           </div>
         </div>
       </div>
-      {votingWorkId && <PhoneModal workId={votingWorkId} onClose={() => setVotingWorkId(null)} onSuccess={() => { setVotingWorkId(null); setVoteSuccess("投票成功！"); setTimeout(() => { setVoteSuccess(null); window.location.reload(); }, 1500); }} />}
+      {votingWorkId && <PhoneModal workId={votingWorkId} onClose={() => setVotingWorkId(null)} onSuccess={() => { setVotingWorkId(null); setVoteSuccess("投票成功！"); setTimeout(() => { setVoteSuccess(null); }, 2000); setPage(1); setRefreshKey(k => k + 1); }} />}
       {voteSuccess && <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-[60] text-sm font-bold">{voteSuccess}</div>}
     </div>
   );

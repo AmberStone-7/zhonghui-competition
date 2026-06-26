@@ -32,3 +32,20 @@ build/
 /static/
 frontend/dist/
 frontend/node_modules/
+
+# Temp files
+*.tmp
+
+# Playwright
+.playwright-cli/
+
+# Screenshots
+/testscreenshots/
+
+# Prototype previews
+/preview/
+
+# Python runtime artifacts
+backend/venv/
+backend/.env
+backend/zhonghui_competition.db

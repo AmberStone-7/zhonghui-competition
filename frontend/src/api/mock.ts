@@ -49,6 +49,7 @@ export function getMockVoteStatus() {
 
 // ── Mock login ──
 
+// ⚠️ DEMO ONLY — 仅用于本地开发和演示，请勿将密码提交到生产环境
 const MOCK_USERS: Record<string, { password: string; role: string }> = {
   admin: { password: "admin123", role: "super_admin" },
   scorer_a: { password: "scorer123", role: "scorer_a" },

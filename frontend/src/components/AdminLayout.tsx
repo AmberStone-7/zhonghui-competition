@@ -1,3 +1,4 @@
+import { storage } from "../utils/storage";
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { ClipboardList, FolderOpen, Pencil, Star, Download, Settings } from "lucide-react";
@@ -23,7 +24,7 @@ export default function AdminLayout() {
   const { role, logout } = useAuth();
   const navigate = useNavigate();
   const isSuperAdmin = role === "super_admin";
-  const isMock = sessionStorage.getItem("mock_mode") === "1";
+  const isMock = storage.getItem("mock_mode") === "1";
 
   const handleLogout = () => {
     logout();

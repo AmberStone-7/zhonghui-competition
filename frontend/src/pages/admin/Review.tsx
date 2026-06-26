@@ -42,7 +42,7 @@ export default function Review() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [actionId, setActionId] = useState<string | null>(null);
-  const [workNumber, setWorkNumber] = useState("");
+  const [workNumbers, setWorkNumbers] = useState<Record<string, string>>({});
   const [rejectReason, setRejectReason] = useState("");
   const [showReject, setShowReject] = useState<string | null>(null);
 
@@ -80,9 +80,9 @@ export default function Review() {
     setActionId(workId);
     try {
       const body: { work_number?: string } = {};
-      if (workNumber.trim()) body.work_number = workNumber.trim();
+      const num = workNumbers[workId]?.trim(); if (num) body.work_number = num;
       await api.post(`/api/admin/works/${workId}/approve`, body);
-      setWorkNumber("");
+      setWorkNumbers(prev => { const next = { ...prev }; delete next[workId]; return next; });
       fetchWorks();
     } catch {
       setError("操作失败");
@@ -242,8 +242,8 @@ export default function Review() {
                     <div className="flex items-center gap-3">
                       <input
                         type="text"
-                        value={workNumber}
-                        onChange={(e) => setWorkNumber(e.target.value)}
+                        value={workNumbers[work.id] || ""}
+                        onChange={(e) => setWorkNumbers(prev => ({ ...prev, [work.id]: e.target.value }))}
                         placeholder="作品编号（可选）"
                         className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 w-40"
                       />

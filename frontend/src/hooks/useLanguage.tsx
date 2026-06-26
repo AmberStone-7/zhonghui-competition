@@ -1,3 +1,4 @@
+import { storage } from "../utils/storage";
 import { createContext, useContext, useState, useCallback, useMemo, type ReactNode } from "react";
 import type { Language, Translations } from "../i18n";
 import { getTranslations, LANGUAGES } from "../i18n";
@@ -6,7 +7,7 @@ const STORAGE_KEY = "app_language";
 
 function detectLanguage(): Language {
   try {
-    const stored = sessionStorage.getItem(STORAGE_KEY);
+    const stored = storage.getItem(STORAGE_KEY);
     if (stored && LANGUAGES.some((l) => l.code === stored)) {
       return stored as Language;
     }
@@ -29,7 +30,7 @@ export function LanguageProvider({ children }: { children: ReactNode }) {
   const setLanguage = useCallback((lang: Language) => {
     setLanguageState(lang);
     try {
-      sessionStorage.setItem(STORAGE_KEY, lang);
+      storage.setItem(STORAGE_KEY, lang);
     } catch { /* ignore */ }
   }, []);
 

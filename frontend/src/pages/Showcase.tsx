@@ -1,3 +1,4 @@
+import type { Work } from "../types";
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import api from "../api/client";
@@ -8,13 +9,6 @@ import PcBannerImage from "../components/PcBannerImage";
 import { useLanguage } from "../hooks/useLanguage";
 
 const BASE = import.meta.env.BASE_URL;
-interface Work {
-  id: string;
-  work_number: string;
-  name_masked: string;
-  images: string[];
-  vote_count: number;
-}
 
 export default function Showcase() {
   const { t } = useLanguage();
