@@ -29,6 +29,6 @@ dist/
 build/
 
 # Frontend build output (built in Docker)
-static/
+/static/
 frontend/dist/
 frontend/node_modules/
