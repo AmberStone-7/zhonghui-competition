@@ -1,7 +1,7 @@
 import asyncio
 import logging
 
-from supabase import create_client, SupabaseException
+from supabase import create_client
 from app.config import settings
 
 logger = logging.getLogger("uvicorn.error")
@@ -14,7 +14,7 @@ def _get_supabase():
         try:
             _supabase = create_client(settings.supabase_url, settings.supabase_key)
             logger.info("Supabase client initialized successfully")
-        except SupabaseException:
+        except Exception:
             logger.warning(
                 "Supabase client initialization failed: invalid API key. "
                 "Image uploads will be unavailable."
