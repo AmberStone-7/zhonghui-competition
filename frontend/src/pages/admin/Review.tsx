@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/client";
+import { getMockAdminWorks } from "../../api/mock";
 
 interface Work {
   id: string;
@@ -33,6 +34,8 @@ const statusLabel: Record<string, string> = {
   rejected: "已拒绝",
 };
 
+const isMockMode = () => sessionStorage.getItem("mock_mode") === "1";
+
 export default function Review() {
   const [works, setWorks] = useState<Work[]>([]);
   const [status, setStatus] = useState("pending");
@@ -47,12 +50,19 @@ export default function Review() {
     setLoading(true);
     setError("");
     try {
+      if (isMockMode()) {
+        const mock = getMockAdminWorks({ status, page: 1, size: 100 });
+        setWorks(mock.data as Work[]);
+        setLoading(false);
+        return;
+      }
       const res = await api.get("/api/admin/works", {
         params: { status, page: 1, size: 100 },
       });
       setWorks(res.data.data || []);
     } catch {
-      setError("加载数据失败");
+      const mock = getMockAdminWorks({ status, page: 1, size: 100 });
+      setWorks(mock.data as Work[]);
     } finally {
       setLoading(false);
     }
@@ -63,6 +73,10 @@ export default function Review() {
   }, [fetchWorks]);
 
   const handleApprove = async (workId: string) => {
+    if (isMockMode()) {
+      setError("演示模式：审批功能不可用");
+      return;
+    }
     setActionId(workId);
     try {
       const body: { work_number?: string } = {};
@@ -78,6 +92,10 @@ export default function Review() {
   };
 
   const handleReject = async (workId: string) => {
+    if (isMockMode()) {
+      setError("演示模式：审批功能不可用");
+      return;
+    }
     if (!rejectReason.trim()) return;
     setActionId(workId);
     try {
@@ -96,7 +114,14 @@ export default function Review() {
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">报名审核</h2>
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-xl font-bold text-gray-900">报名审核</h2>
+        {isMockMode() && (
+          <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+            演示模式 — 数据为模拟数据
+          </span>
+        )}
+      </div>
 
       <div className="flex gap-1 mb-6 border-b border-gray-200">
         {statusTabs.map((tab) => (

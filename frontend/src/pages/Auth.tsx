@@ -54,6 +54,7 @@ export default function Auth() {
 
         <div className="mx-auto mt-[24px] flex w-full max-w-[322px] items-center justify-between">
           <button
+            onClick={() => window.history.back()}
             className="h-[56px] w-[118px] rounded-[12px] border border-white/35 bg-white/12 text-[22px] font-bold text-white backdrop-blur-sm"
           >
             {t["auth.cancel"]}
@@ -97,6 +98,7 @@ export default function Auth() {
 
         <div className="mt-2 flex w-[960px] items-center justify-between px-[120px]">
           <button
+            onClick={() => window.history.back()}
             className="h-[78px] w-[200px] rounded-[16px] border border-white/35 bg-white/12 text-3xl font-bold text-white backdrop-blur-sm"
           >
             {t["auth.cancel"]}

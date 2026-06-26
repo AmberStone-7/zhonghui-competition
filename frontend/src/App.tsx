@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import ErrorBoundary from "./components/ErrorBoundary";
 import AuthGuard from "./components/AuthGuard";
 import Layout from "./components/Layout";
@@ -12,12 +12,10 @@ import Vote from "./pages/Vote";
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 
-const BASENAME = import.meta.env.PROD ? "/zhonghui-competition" : "/static";
-
 export default function App() {
   return (
     <ErrorBoundary>
-    <BrowserRouter basename={BASENAME}>
+    <HashRouter>
       <Routes>
         <Route element={<AuthGuard><Layout /></AuthGuard>}>
           <Route path="/" element={<Home />} />
@@ -31,7 +29,7 @@ export default function App() {
         <Route path="/admin/login" element={<Login />} />
         <Route path="/admin/*" element={<Dashboard />} />
       </Routes>
-    </BrowserRouter>
+    </HashRouter>
     </ErrorBoundary>
   );
 }

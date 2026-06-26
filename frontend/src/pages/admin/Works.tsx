@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/client";
+import { getMockAdminWorks } from "../../api/mock";
 
 interface Work {
   id: string;
@@ -30,6 +31,8 @@ const statusLabel: Record<string, string> = {
   rejected: "已拒绝",
 };
 
+const isMockMode = () => sessionStorage.getItem("mock_mode") === "1";
+
 export default function Works() {
   const [works, setWorks] = useState<Work[]>([]);
   const [status, setStatus] = useState("all");
@@ -43,13 +46,22 @@ export default function Works() {
     setLoading(true);
     setError("");
     try {
+      if (isMockMode()) {
+        const mock = getMockAdminWorks({ status, page, size });
+        setWorks(mock.data as Work[]);
+        setTotal(mock.total);
+        setLoading(false);
+        return;
+      }
       const res = await api.get("/api/admin/works", {
         params: { status, page, size },
       });
       setWorks(res.data.data || []);
       setTotal(res.data.total || 0);
     } catch {
-      setError("加载数据失败");
+      const mock = getMockAdminWorks({ status, page, size });
+      setWorks(mock.data as Work[]);
+      setTotal(mock.total);
     } finally {
       setLoading(false);
     }
@@ -60,6 +72,10 @@ export default function Works() {
   }, [fetchWorks]);
 
   const handleDelete = async (workId: string, name: string) => {
+    if (isMockMode()) {
+      setError("演示模式：删除功能不可用");
+      return;
+    }
     if (!window.confirm(`确定要删除 ${name} 的作品吗？此操作不可撤销。`)) return;
     try {
       await api.delete(`/api/admin/works/${workId}`);
@@ -74,7 +90,14 @@ export default function Works() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h2 className="text-xl font-bold text-gray-900">作品管理</h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-gray-900">作品管理</h2>
+          {isMockMode() && (
+            <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">
+              演示模式
+            </span>
+          )}
+        </div>
         <select
           value={status}
           onChange={(e) => {
@@ -105,60 +128,29 @@ export default function Works() {
             <table className="w-full border-collapse">
               <thead>
                 <tr>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    编号
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    姓名
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    电话
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    税号
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    状态
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    提交时间
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    操作
-                  </th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">编号</th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">姓名</th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">电话</th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">税号</th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">状态</th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">提交时间</th>
+                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">操作</th>
                 </tr>
               </thead>
               <tbody>
                 {works.length === 0 ? (
                   <tr>
-                    <td
-                      colSpan={7}
-                      className="border-t border-gray-200 px-4 py-8 text-center text-sm text-gray-500"
-                    >
-                      暂无数据
-                    </td>
+                    <td colSpan={7} className="border-t border-gray-200 px-4 py-8 text-center text-sm text-gray-500">暂无数据</td>
                   </tr>
                 ) : (
                   works.map((work) => (
                     <tr key={work.id}>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">
-                        {work.work_number || "-"}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">
-                        {work.contestant_name}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-600">
-                        {work.contestant_phone}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-600 font-mono text-xs">
-                        {work.contestant_tax_id}
-                      </td>
+                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">{work.work_number || "-"}</td>
+                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">{work.contestant_name}</td>
+                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-600">{work.contestant_phone}</td>
+                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-600 font-mono text-xs">{work.contestant_tax_id}</td>
                       <td className="border-t border-gray-200 px-4 py-3">
-                        <span
-                          className={`rounded px-2.5 py-0.5 text-xs font-semibold ${
-                            statusBadge[work.status] || ""
-                          }`}
-                        >
+                        <span className={`rounded px-2.5 py-0.5 text-xs font-semibold ${statusBadge[work.status] || ""}`}>
                           {statusLabel[work.status] || work.status}
                         </span>
                       </td>
@@ -166,14 +158,7 @@ export default function Works() {
                         {new Date(work.created_at).toLocaleString("zh-CN")}
                       </td>
                       <td className="border-t border-gray-200 px-4 py-3">
-                        <button
-                          onClick={() =>
-                            handleDelete(work.id, work.contestant_name)
-                          }
-                          className="text-sm text-red-600 hover:text-red-800 cursor-pointer"
-                        >
-                          删除
-                        </button>
+                        <button onClick={() => handleDelete(work.id, work.contestant_name)} className="text-sm text-red-600 hover:text-red-800 cursor-pointer">删除</button>
                       </td>
                     </tr>
                   ))
@@ -181,27 +166,12 @@ export default function Works() {
               </tbody>
             </table>
           </div>
-
           {totalPages > 1 && (
             <div className="flex items-center justify-between mt-4">
-              <span className="text-sm text-gray-500">
-                共 {total} 条，第 {page}/{totalPages} 页
-              </span>
+              <span className="text-sm text-gray-500">共 {total} 条，第 {page}/{totalPages} 页</span>
               <div className="flex gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  上一页
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  下一页
-                </button>
+                <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">上一页</button>
+                <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">下一页</button>
               </div>
             </div>
           )}

@@ -1,5 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/client";
+import { getMockScores } from "../../api/mock";
 
 interface ScoreRow {
   work_id: string;
@@ -12,6 +13,37 @@ interface ScoreRow {
   popularity_score: number | null;
   total: number | null;
   locked?: boolean;
+}
+
+const isMockMode = () => sessionStorage.getItem("mock_mode") === "1";
+
+function mockToScoreRows(): ScoreRow[] {
+  const raw = getMockScores();
+  return raw.map((item) => {
+    const getScore = (role: string) => {
+      const s = item.scores.find((x) => x.scorer_role === role);
+      return s ? s.subtotal : null;
+    };
+    const a = getScore("scorer_a");
+    const b = getScore("scorer_b");
+    const c = getScore("scorer_c");
+    const d = getScore("scorer_d");
+    const pop = Math.floor(Math.random() * 5) + 1;
+    const hasNull = a === null || b === null || c === null || d === null;
+    const total = hasNull ? null : (a! + b! + c! + d!) / 4 + pop;
+    return {
+      work_id: item.work_id,
+      work_number: item.work_number || "",
+      contestant_name: item.contestant_name,
+      score_a: a,
+      score_b: b,
+      score_c: c,
+      score_d: d,
+      popularity_score: pop,
+      total,
+      locked: item.scores.some((s) => s.status === "locked"),
+    };
+  }).sort((x, y) => (y.total ?? 0) - (x.total ?? 0));
 }
 
 export default function Scores() {
@@ -27,177 +59,95 @@ export default function Scores() {
     setLoading(true);
     setError("");
     try {
-      const res = await api.get("/api/admin/scores", {
-        params: { page, size, sort: "total" },
-      });
+      if (isMockMode()) {
+        const rows = mockToScoreRows();
+        setScores(rows.slice((page - 1) * size, page * size));
+        setTotal(rows.length);
+        setLoading(false);
+        return;
+      }
+      const res = await api.get("/api/admin/scores", { params: { page, size, sort: "total" } });
       setScores(res.data.data || []);
       setTotal(res.data.total || 0);
     } catch {
-      setError("加载数据失败");
+      const rows = mockToScoreRows();
+      setScores(rows.slice((page - 1) * size, page * size));
+      setTotal(rows.length);
     } finally {
       setLoading(false);
     }
   }, [page]);
 
-  useEffect(() => {
-    fetchScores();
-  }, [fetchScores]);
+  useEffect(() => { fetchScores(); }, [fetchScores]);
 
   const handleLock = async (workId: string) => {
+    if (isMockMode()) { setError("演示模式：锁定功能不可用"); return; }
     if (!window.confirm("确定要锁定该作品的成绩吗？锁定后不可修改。")) return;
     setLockingId(workId);
-    try {
-      await api.post(`/api/admin/scores/${workId}/lock`);
-      fetchScores();
-    } catch {
-      setError("锁定失败");
-    } finally {
-      setLockingId(null);
-    }
+    try { await api.post(`/api/admin/scores/${workId}/lock`); fetchScores(); }
+    catch { setError("锁定失败"); }
+    finally { setLockingId(null); }
   };
 
   const totalPages = Math.ceil(total / size);
-
-  const fmt = (v: number | null | undefined) =>
-    v !== null && v !== undefined ? v.toFixed(1) : "-";
+  const fmt = (v: number | null | undefined) => v !== null && v !== undefined ? v.toFixed(1) : "-";
 
   return (
     <div>
-      <h2 className="text-xl font-bold text-gray-900 mb-6">成绩管理</h2>
-
-      {error && (
-        <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-md">
-          {error}
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl font-bold text-gray-900">成绩管理</h2>
+          {isMockMode() && <span className="px-3 py-1 bg-amber-100 text-amber-700 text-xs font-medium rounded-full">演示模式</span>}
         </div>
-      )}
-
-      {loading ? (
-        <p className="text-gray-500 text-sm">加载中...</p>
-      ) : (
-        <>
-          <div className="bg-white border border-gray-200 rounded-lg overflow-hidden overflow-x-auto">
-            <table className="w-full border-collapse">
-              <thead>
-                <tr>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    排名
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    编号
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    姓名
-                  </th>
-                  <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">
-                    A-品牌(4)
-                  </th>
-                  <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">
-                    B-视觉(5)
-                  </th>
-                  <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">
-                    C-陈列(4)
-                  </th>
-                  <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">
-                    D-执行(2)
-                  </th>
-                  <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">
-                    人气分(5)
-                  </th>
-                  <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">
-                    总分(20)
-                  </th>
-                  <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">
-                    操作
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {scores.length === 0 ? (
-                  <tr>
-                    <td
-                      colSpan={10}
-                      className="border-t border-gray-200 px-4 py-8 text-center text-sm text-gray-500"
-                    >
-                      暂无数据
+      </div>
+      {error && <div className="mb-4 p-3 bg-red-50 text-red-600 text-sm rounded-md">{error}</div>}
+      {loading ? <p className="text-gray-500 text-sm">加载中...</p> : <>
+        <div className="bg-white border border-gray-200 rounded-lg overflow-hidden overflow-x-auto">
+          <table className="w-full border-collapse">
+            <thead><tr>
+              <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">排名</th>
+              <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">编号</th>
+              <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">姓名</th>
+              <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">A-品牌(4)</th>
+              <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">B-视觉(5)</th>
+              <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">C-陈列(4)</th>
+              <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">D-执行(2)</th>
+              <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">人气分(5)</th>
+              <th className="bg-gray-100 text-center text-xs font-semibold text-gray-600 px-4 py-3">总分(20)</th>
+              <th className="bg-gray-100 text-left text-xs font-semibold text-gray-600 px-4 py-3">操作</th>
+            </tr></thead>
+            <tbody>
+              {scores.length === 0 ? <tr><td colSpan={10} className="border-t border-gray-200 px-4 py-8 text-center text-sm text-gray-500">暂无数据</td></tr> :
+                scores.map((row, idx) => (
+                  <tr key={row.work_id}>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900">{(page - 1) * size + idx + 1}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">{row.work_number || "-"}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">{row.contestant_name}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">{fmt(row.score_a)}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">{fmt(row.score_b)}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">{fmt(row.score_c)}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">{fmt(row.score_d)}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">{fmt(row.popularity_score)}</td>
+                    <td className="border-t border-gray-200 px-4 py-3 text-sm text-center font-bold text-gray-900">{fmt(row.total)}</td>
+                    <td className="border-t border-gray-200 px-4 py-3">
+                      {row.locked ? <span className="rounded px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">已锁定</span> :
+                        <button onClick={() => handleLock(row.work_id)} disabled={lockingId === row.work_id} className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50 cursor-pointer">
+                          {lockingId === row.work_id ? "锁定中..." : "锁定"}
+                        </button>}
                     </td>
                   </tr>
-                ) : (
-                  scores.map((row, idx) => (
-                    <tr key={row.work_id}>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm font-semibold text-gray-900">
-                        {(page - 1) * size + idx + 1}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">
-                        {row.work_number || "-"}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-gray-900">
-                        {row.contestant_name}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">
-                        {fmt(row.score_a)}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">
-                        {fmt(row.score_b)}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">
-                        {fmt(row.score_c)}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">
-                        {fmt(row.score_d)}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-center text-gray-600">
-                        {fmt(row.popularity_score)}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3 text-sm text-center font-bold text-gray-900">
-                        {fmt(row.total)}
-                      </td>
-                      <td className="border-t border-gray-200 px-4 py-3">
-                        {row.locked ? (
-                          <span className="rounded px-2.5 py-0.5 text-xs font-semibold bg-gray-100 text-gray-600">
-                            已锁定
-                          </span>
-                        ) : (
-                          <button
-                            onClick={() => handleLock(row.work_id)}
-                            disabled={lockingId === row.work_id}
-                            className="text-sm text-red-600 hover:text-red-800 disabled:opacity-50 cursor-pointer"
-                          >
-                            {lockingId === row.work_id ? "锁定中..." : "锁定"}
-                          </button>
-                        )}
-                      </td>
-                    </tr>
-                  ))
-                )}
-              </tbody>
-            </table>
+                ))}
+            </tbody>
+          </table>
+        </div>
+        {totalPages > 1 && <div className="flex items-center justify-between mt-4">
+          <span className="text-sm text-gray-500">共 {total} 条，第 {page}/{totalPages} 页</span>
+          <div className="flex gap-2">
+            <button onClick={() => setPage((p) => Math.max(1, p - 1))} disabled={page <= 1} className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">上一页</button>
+            <button onClick={() => setPage((p) => Math.min(totalPages, p + 1))} disabled={page >= totalPages} className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer">下一页</button>
           </div>
-
-          {totalPages > 1 && (
-            <div className="flex items-center justify-between mt-4">
-              <span className="text-sm text-gray-500">
-                共 {total} 条，第 {page}/{totalPages} 页
-              </span>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
-                  disabled={page <= 1}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  上一页
-                </button>
-                <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                  disabled={page >= totalPages}
-                  className="px-3 py-1.5 text-sm border border-gray-300 rounded-md hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
-                >
-                  下一页
-                </button>
-              </div>
-            </div>
-          )}
-        </>
-      )}
+        </div>}
+      </>}
     </div>
   );
 }

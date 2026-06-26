@@ -42,6 +42,7 @@ export default function Login() {
               ZH
             </div>
             <h1 className="text-xl font-bold text-gray-900">管理后台登录</h1>
+            <p className="text-xs text-amber-600 mt-2 text-center">演示账号: admin / admin123</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-5">

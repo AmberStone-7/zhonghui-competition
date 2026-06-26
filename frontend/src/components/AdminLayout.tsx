@@ -23,6 +23,7 @@ export default function AdminLayout() {
   const { role, logout } = useAuth();
   const navigate = useNavigate();
   const isSuperAdmin = role === "super_admin";
+  const isMock = sessionStorage.getItem("mock_mode") === "1";
 
   const handleLogout = () => {
     logout();
@@ -31,6 +32,11 @@ export default function AdminLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50">
+      {isMock && (
+        <div className="bg-amber-500 text-white text-center text-xs font-medium py-1.5">
+          演示模式 — 后端未连接，当前显示模拟数据。登录账号: admin / admin123
+        </div>
+      )}
       <header className="bg-slate-800 text-white h-14 flex items-center justify-between px-6">
         <h1 className="text-lg font-bold">管理后台</h1>
         <div className="flex items-center gap-4">
