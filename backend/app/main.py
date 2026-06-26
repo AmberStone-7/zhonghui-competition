@@ -4,6 +4,7 @@ import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from app.config import settings
 from app.middleware import RateLimitMiddleware, RequestLoggingMiddleware
 from app.api.admin.auth import router as admin_auth_router
@@ -57,10 +58,9 @@ async def health_check():
 
 
 # --- Serve Frontend Static Files ---
-# Try multiple possible static directories
 _candidates = [
-    os.path.join(os.path.dirname(os.path.dirname(__file__)), "static"),  # /app/static/
-    os.path.join(os.path.dirname(__file__), "static"),                   # /app/app/static/
+    os.path.join(os.path.dirname(os.path.dirname(__file__)), "static"),
+    os.path.join(os.path.dirname(__file__), "static"),
     "/app/static",
     os.path.join(os.getcwd(), "static"),
 ]
@@ -73,10 +73,18 @@ for d in _candidates:
 
 if STATIC_DIR:
     logger.info(f"Serving static files from: {STATIC_DIR}")
-    # Mount static files at root so /assets/... resolves correctly
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
 
+    # Mount assets directory for static files
+    assets_dir = os.path.join(STATIC_DIR, "assets")
+    if os.path.isdir(assets_dir):
+        app.mount("/assets", StaticFiles(directory=assets_dir), name="assets")
+
+    # SPA fallback: serve index.html for all non-API routes
+    @app.get("/{full_path:path}")
+    async def serve_spa(full_path: str):
+        target = os.path.join(STATIC_DIR, full_path)
+        if full_path and os.path.isfile(target):
+            return FileResponse(target)
+        return FileResponse(os.path.join(STATIC_DIR, "index.html"))
+else:
     logger.warning(f"No static directory found. Checked: {_candidates}")
-    logger.warning(f"cwd={os.getcwd()}, __file__={__file__}")
-    for d in _candidates:
-        logger.warning(f"  {d}: exists={os.path.exists(d)}, isdir={os.path.isdir(d) if os.path.exists(d) else 'N/A'}")
