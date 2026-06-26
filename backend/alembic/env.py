@@ -14,7 +14,7 @@ if config.config_file_name is not None:
 target_metadata = Base.metadata
 
 # Override sqlalchemy.url with env var (convert async URL back to sync for alembic)
-config.set_main_option("sqlalchemy.url", _to_async_url(settings.database_url).replace("+asyncpg", ""))
+config.set_main_option("sqlalchemy.url", _to_async_url(settings.database_url).replace("+asyncpg", "").replace("+aiosqlite", ""))
 
 
 def run_migrations_offline() -> None:
