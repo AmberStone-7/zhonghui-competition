@@ -54,6 +54,13 @@ const zh = {
   "register.error.taxId": "请输入税号",
   "register.error.noImage": "请上传至少一张作品图片",
   "register.error.fail": "报名失败，请稍后再试",
+  // Register - New poster fields
+  "register.posterUpload": "上传橱窗海报 (1-3张)",
+  "register.schoolPosterUpload": "上传学讯海报 (1-3张)",
+  "register.error.noPoster": "请上传橱窗海报",
+  "register.error.noSchoolPoster": "请上传学讯海报",
+  "register.posterHint": "点击上传橱窗海报 (1-3张)",
+  "register.schoolPosterHint": "点击上传学讯海报 (1-3张)",
 
   // Showcase
   "showcase.search": "搜索作品名称或编号...",
@@ -93,22 +100,34 @@ const zh = {
 
   // Awards
   "awards.professional": "专业评审类",
-  "awards.professional1.name": "综合评分第一名",
-  "awards.professional1.prize": "¥5000奖品",
-  "awards.professional2.name": "综合评分第二、三名",
-  "awards.professional2.prize": "¥3000奖品",
-  "awards.professional3.name": "综合评分第四至六名",
-  "awards.professional3.prize": "¥1000奖品",
+  "awards.professional1.name": "专业一等奖",
+  "awards.professional1.prize": "新款 iPhone",
+  "awards.professional2.name": "专业二等奖",
+  "awards.professional2.prize": "1000€ MP 代金券",
+  "awards.professional3.name": "专业三等奖",
+  "awards.professional3.prize": "iPad + AirPods",
   "awards.popular": "人气投票类",
-  "awards.popular1.name": "获票数最多的作品",
-  "awards.popular1.prize": "¥3000奖品",
-  "awards.popular2.name": "票数第二至四名",
-  "awards.popular2.prize": "¥1000奖品",
+  "awards.popular1.name": "人气第一名",
+  "awards.popular1.prize": "600€ MP 代金券",
+  "awards.popular2.name": "人气第二名",
+  "awards.popular2.prize": "300€ MP 代金券",
+  "awards.popular3.name": "人气第三名",
+  "awards.popular3.prize": "MP 惊喜家居礼包",
+  "awards.popular4.name": "人气新星奖（第4-50名）",
+  "awards.popular4.prize": "Rituals 礼盒",
   "awards.special": "特别奖项",
-  "awards.special1.name": "最具创意的橱窗设计",
-  "awards.special1.prize": "¥2000奖品",
-  "awards.special2.name": "所有成功报名者均可获得",
-  "awards.special2.prize": "精美纪念品",
+  "awards.special1.name": "最佳创意奖",
+  "awards.special1.prize": "300€ MP 代金券",
+  "awards.special2.name": "参与奖 - 100€ 代金券",
+  "awards.special2.prize": "有机会获得",
+  "awards.special3.name": "参与奖 - 50€ 代金券",
+  "awards.special3.prize": "有机会获得",
+  "awards.special4.name": "参与奖 - 10€ 代金券",
+  "awards.special4.prize": "有机会获得",
+  "awards.participation": "参与奖项",
+  "awards.lottery": "特别抽奖",
+  "awards.lotteryDesc": "参与橱窗大赛且参与学讯金票活动，即可参与特别抽奖",
+  "awards.lotteryPrize": "新款 iPhone、茅台等礼品",
 
   // Vote
   "vote.open": "投票进行中",
@@ -149,7 +168,47 @@ const zh = {
 
   // WorkCard
   "workcard.noImage": "暂无图片",
-};
 
+  // Admin - Review page
+  "admin.review.hold": "待定",
+  "admin.review.holdConfirm": "确认待定",
+  "admin.review.voucherTag": "代金券标签",
+  "admin.review.selectTag": "选择标签",
+  "admin.review.newTag": "新建标签",
+  "admin.review.tagName": "标签名称",
+  "admin.review.tagAmount": "代金券金额",
+  "admin.review.tagColor": "标签颜色",
+  "admin.review.createTag": "创建标签",
+  "admin.review.noTag": "不分配标签",
+
+  // Admin - Works page
+  "admin.works.title": "作品管理",
+  "admin.works.approved": "已审核作品",
+  "admin.works.pending": "待审核作品",
+  "admin.works.hold": "待定作品",
+  "admin.works.statusHold": "待定",
+  "admin.works.edit": "编辑",
+  "admin.works.editTitle": "编辑作品",
+  "admin.works.tabInfo": "作品信息",
+  "admin.works.tabScores": "评分信息",
+  "admin.works.tabVoucher": "代金券标签",
+  "admin.works.customerNumber": "客编",
+  "admin.works.adminRemarks": "备注信息",
+  "admin.works.save": "保存",
+  "admin.works.cancel": "取消",
+  "admin.works.noTag": "-",
+  "admin.works.uploadWorksMgmt": "上传作品管理",
+  "admin.works.images": "橱窗照片",
+  "admin.works.posterImage": "橱窗海报",
+  "admin.works.schoolPosterImage": "学讯海报",
+
+  // Admin - Export page
+  "admin.export.voucher": "代金券数据",
+  "admin.export.voucherDesc": "导出所有已审核且关联代金券标签的作品数据",
+
+  // Admin - AdminLayout (scorer nav)
+  "admin.nav.scoring": "评分任务",
+  "admin.nav.uploadMgmt": "上传作品管理",
+};
 export default zh;
 export type Translations = typeof zh;
