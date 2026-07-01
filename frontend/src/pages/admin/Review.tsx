@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from "react";
 import api from "../../api/client";
-import { getMockAdminWorks } from "../../api/mock";
+import { getMockAdminWorks, getMockVoucherTags } from "../../api/mock";
+import type { VoucherTag } from "../../types";
 
 interface Work {
   id: string;
@@ -10,14 +11,20 @@ interface Work {
   contestant_tax_id: string;
   contestant_address: string;
   images: string[];
+  poster_image?: string;
+  school_poster_image?: string;
   status: string;
   reject_reason: string | null;
+  voucher_tag?: VoucherTag | null;
   created_at: string;
+  customer_number?: string;
+  admin_remarks?: string;
 }
 
 const statusTabs = [
   { key: "all", label: "全部" },
   { key: "pending", label: "待审核" },
+  { key: "hold", label: "待定" },
   { key: "approved", label: "已通过" },
   { key: "rejected", label: "已拒绝" },
 ];
@@ -26,12 +33,14 @@ const statusBadge: Record<string, string> = {
   pending: "bg-amber-100 text-amber-800",
   approved: "bg-green-100 text-green-800",
   rejected: "bg-red-100 text-red-800",
+  hold: "bg-purple-100 text-purple-800",
 };
 
 const statusLabel: Record<string, string> = {
   pending: "待审核",
   approved: "已通过",
   rejected: "已拒绝",
+  hold: "待定",
 };
 
 const isMockMode = () => sessionStorage.getItem("mock_mode") === "1";
@@ -45,6 +54,13 @@ export default function Review() {
   const [workNumbers, setWorkNumbers] = useState<Record<string, string>>({});
   const [rejectReason, setRejectReason] = useState("");
   const [showReject, setShowReject] = useState<string | null>(null);
+  // Voucher tag state
+  const [voucherTags, setVoucherTags] = useState<VoucherTag[]>([]);
+  const [tagSelections, setTagSelections] = useState<Record<string, string>>({});
+  const [showNewTagForm, setShowNewTagForm] = useState<Record<string, boolean>>({});
+  const [newTagName, setNewTagName] = useState("");
+  const [newTagAmount, setNewTagAmount] = useState("");
+  const [newTagColor, setNewTagColor] = useState("#FF6B6B");
 
   const fetchWorks = useCallback(async () => {
     setLoading(true);
@@ -68,9 +84,21 @@ export default function Review() {
     }
   }, [status]);
 
-  useEffect(() => {
-    fetchWorks();
-  }, [fetchWorks]);
+  const fetchVoucherTags = useCallback(async () => {
+    try {
+      if (isMockMode()) {
+        setVoucherTags(getMockVoucherTags());
+        return;
+      }
+      const res = await api.get("/api/admin/voucher-tags");
+      setVoucherTags(res.data || []);
+    } catch {
+      setVoucherTags(getMockVoucherTags());
+    }
+  }, []);
+
+  useEffect(() => { fetchWorks(); }, [fetchWorks]);
+  useEffect(() => { fetchVoucherTags(); }, [fetchVoucherTags]);
 
   const handleApprove = async (workId: string) => {
     if (isMockMode()) {
@@ -79,8 +107,10 @@ export default function Review() {
     }
     setActionId(workId);
     try {
-      const body: { work_number?: string } = {};
+      const body: Record<string, unknown> = {};
       const num = workNumbers[workId]?.trim(); if (num) body.work_number = num;
+      const tagId = tagSelections[workId];
+      if (tagId && tagId !== "__none__") body.voucher_tag_id = tagId;
       await api.post(`/api/admin/works/${workId}/approve`, body);
       setWorkNumbers(prev => { const next = { ...prev }; delete next[workId]; return next; });
       fetchWorks();
@@ -109,6 +139,53 @@ export default function Review() {
       setError("操作失败");
     } finally {
       setActionId(null);
+    }
+  };
+
+  const handleHold = async (workId: string) => {
+    if (isMockMode()) {
+      setError("演示模式：待定功能不可用");
+      return;
+    }
+    setActionId(workId);
+    try {
+      await api.post(`/api/admin/works/${workId}/hold`);
+      fetchWorks();
+    } catch {
+      setError("操作失败");
+    } finally {
+      setActionId(null);
+    }
+  };
+
+  const createVoucherTag = async (workId: string) => {
+    if (!newTagName.trim()) return;
+    const tagData = {
+      name: newTagName.trim(),
+      amount: parseFloat(newTagAmount) || 0,
+      color: newTagColor,
+    };
+    if (isMockMode()) {
+      const newTag: VoucherTag = { id: `tag-new-${Date.now()}`, ...tagData };
+      setVoucherTags(prev => [...prev, newTag]);
+      setTagSelections(prev => ({ ...prev, [workId]: newTag.id }));
+      setShowNewTagForm(prev => ({ ...prev, [workId]: false }));
+      setNewTagName("");
+      setNewTagAmount("");
+      setNewTagColor("#FF6B6B");
+      return;
+    }
+    try {
+      const res = await api.post("/api/admin/voucher-tags", tagData);
+      const newTag = res.data;
+      setVoucherTags(prev => [...prev, newTag]);
+      setTagSelections(prev => ({ ...prev, [workId]: newTag.id }));
+      setShowNewTagForm(prev => ({ ...prev, [workId]: false }));
+      setNewTagName("");
+      setNewTagAmount("");
+      setNewTagColor("#FF6B6B");
+    } catch {
+      setError("创建标签失败");
     }
   };
 
@@ -174,6 +251,12 @@ export default function Review() {
                         编号: {work.work_number}
                       </span>
                     )}
+                    {work.voucher_tag && (
+                      <span className="flex items-center gap-1 px-2 py-0.5 rounded text-xs font-medium" style={{ backgroundColor: work.voucher_tag.color + "20", color: work.voucher_tag.color }}>
+                        <span className="w-2 h-2 rounded-full" style={{ backgroundColor: work.voucher_tag.color }} />
+                        {work.voucher_tag.name}
+                      </span>
+                    )}
                   </div>
                   <div className="text-sm text-gray-500 space-y-0.5">
                     <p>电话: {work.contestant_phone}</p>
@@ -200,13 +283,30 @@ export default function Review() {
                 </div>
               )}
 
+              {(work.poster_image || work.school_poster_image) && (
+                <div className="flex gap-2 mb-3 overflow-x-auto text-xs text-gray-400">
+                  {work.poster_image && (
+                    <div>
+                      <span className="mb-1 block">橱窗海报</span>
+                      <img src={work.poster_image} alt="橱窗海报" className="w-16 h-16 object-cover rounded border border-gray-200" />
+                    </div>
+                  )}
+                  {work.school_poster_image && (
+                    <div>
+                      <span className="mb-1 block">学讯海报</span>
+                      <img src={work.school_poster_image} alt="学讯海报" className="w-16 h-16 object-cover rounded border border-gray-200" />
+                    </div>
+                  )}
+                </div>
+              )}
+
               {work.status === "rejected" && work.reject_reason && (
                 <p className="text-sm text-red-600 mb-3">
                   拒绝原因: {work.reject_reason}
                 </p>
               )}
 
-              {work.status === "pending" && (
+              {(work.status === "pending" || work.status === "hold") && (
                 <div className="border-t border-gray-100 pt-3">
                   {showReject === work.id ? (
                     <div className="space-y-2">
@@ -239,27 +339,64 @@ export default function Review() {
                       </div>
                     </div>
                   ) : (
-                    <div className="flex items-center gap-3">
-                      <input
-                        type="text"
-                        value={workNumbers[work.id] || ""}
-                        onChange={(e) => setWorkNumbers(prev => ({ ...prev, [work.id]: e.target.value }))}
-                        placeholder="作品编号（可选）"
-                        className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 w-40"
-                      />
-                      <button
-                        onClick={() => handleApprove(work.id)}
-                        disabled={actionId === work.id}
-                        className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:opacity-50 cursor-pointer"
-                      >
-                        {actionId === work.id ? "处理中..." : "通过"}
-                      </button>
-                      <button
-                        onClick={() => setShowReject(work.id)}
-                        className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 cursor-pointer"
-                      >
-                        拒绝
-                      </button>
+                    <div className="space-y-3">
+                      <div className="flex items-center gap-3">
+                        <input
+                          type="text"
+                          value={workNumbers[work.id] || ""}
+                          onChange={(e) => setWorkNumbers(prev => ({ ...prev, [work.id]: e.target.value }))}
+                          placeholder="作品编号（可选）"
+                          className="px-3 py-1.5 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-red-500 w-40"
+                        />
+                        <button
+                          onClick={() => handleApprove(work.id)}
+                          disabled={actionId === work.id}
+                          className="px-3 py-1.5 bg-green-600 text-white text-sm rounded-md hover:bg-green-700 disabled:opacity-50 cursor-pointer"
+                        >
+                          {actionId === work.id ? "处理中..." : "通过"}
+                        </button>
+                        <button
+                          onClick={() => handleHold(work.id)}
+                          disabled={actionId === work.id}
+                          className="px-3 py-1.5 bg-purple-600 text-white text-sm rounded-md hover:bg-purple-700 disabled:opacity-50 cursor-pointer"
+                        >
+                          {actionId === work.id ? "处理中..." : "待定"}
+                        </button>
+                        <button
+                          onClick={() => setShowReject(work.id)}
+                          className="px-3 py-1.5 bg-red-600 text-white text-sm rounded-md hover:bg-red-700 cursor-pointer"
+                        >
+                          拒绝
+                        </button>
+                      </div>
+
+                      {/* Voucher tag assignment */}
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs text-gray-500">代金券标签:</span>
+                        {showNewTagForm[work.id] ? (
+                          <div className="flex items-center gap-2">
+                            <input type="text" value={newTagName} onChange={(e) => setNewTagName(e.target.value)} placeholder="标签名称" className="px-2 py-1 border border-gray-300 rounded text-xs w-32" />
+                            <input type="number" value={newTagAmount} onChange={(e) => setNewTagAmount(e.target.value)} placeholder="金额" className="px-2 py-1 border border-gray-300 rounded text-xs w-20" />
+                            <input type="color" value={newTagColor} onChange={(e) => setNewTagColor(e.target.value)} className="w-6 h-6 border border-gray-300 rounded cursor-pointer" />
+                            <button onClick={() => createVoucherTag(work.id)} className="px-2 py-1 bg-green-600 text-white text-xs rounded hover:bg-green-700 cursor-pointer">创建</button>
+                            <button onClick={() => setShowNewTagForm(prev => ({ ...prev, [work.id]: false }))} className="px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded hover:bg-gray-200 cursor-pointer">取消</button>
+                          </div>
+                        ) : (
+                          <>
+                            <select
+                              value={tagSelections[work.id] || "__none__"}
+                              onChange={(e) => setTagSelections(prev => ({ ...prev, [work.id]: e.target.value }))}
+                              className="px-2 py-1 border border-gray-300 rounded text-xs"
+                            >
+                              <option value="__none__">不分配标签</option>
+                              {voucherTags.map(tag => (
+                                <option key={tag.id} value={tag.id}>{tag.name}</option>
+                              ))}
+                            </select>
+                            <button onClick={() => setShowNewTagForm(prev => ({ ...prev, [work.id]: true }))} className="px-2 py-1 text-xs text-red-600 border border-red-200 rounded hover:bg-red-50 cursor-pointer">+ 新建</button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   )}
                 </div>

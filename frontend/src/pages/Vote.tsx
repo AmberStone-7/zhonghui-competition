@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import api from "../api/client";
 import { getMockWorks, getMockVoteStatus } from "../api/mock";
 import PhoneModal from "../components/PhoneModal";
+import WorkDetailModal from "../components/WorkDetailModal";
 import MobilePrototypeHero from "../components/MobilePrototypeHero";
 import PcBannerImage from "../components/PcBannerImage";
 import { useLanguage } from "../hooks/useLanguage";
@@ -21,6 +22,7 @@ export default function Vote() {
   const [channelStatus, setChannelStatus] = useState<string>("closed");
   const [usingMock, setUsingMock] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const size = 8;
 
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function Vote() {
             {!loading && works.length > 0 && (
               <div className="grid grid-cols-2 gap-3">
                 {works.map((w) => (
-                  <div key={w.id} className="bg-white/5 rounded-xl overflow-hidden border border-gray-100">
+                  <div key={w.id} className="bg-white/5 rounded-xl overflow-hidden border border-gray-100 cursor-pointer" onClick={() => setSelectedWork(w)}>
                     <div className="aspect-square bg-gray-200 relative">
                       {w.images?.[0] ? <img src={w.images[0]} alt={w.work_number} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400 text-xs">{t["vote.noImage"]}</div>}
                       <div className="absolute top-1 left-1 bg-black/50 text-white/80 text-[10px] px-1.5 py-0.5 rounded">{w.work_number}</div>
@@ -89,7 +91,7 @@ export default function Vote() {
                     </div>
                     <div className="p-2 flex items-center justify-between">
                       <span className="text-[12px] text-text-primary font-medium">{w.name_masked}</span>
-                      <button onClick={() => isOpen && setVotingWorkId(w.id)} disabled={!isOpen} className="bg-brand-gold text-white text-[12px] font-bold px-3 py-1 rounded-lg hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">{t["vote.vote"]}</button>
+                      <button onClick={(e) => { e.stopPropagation(); if (isOpen) setVotingWorkId(w.id); }} disabled={!isOpen} className="bg-brand-gold text-white text-[12px] font-bold px-3 py-1 rounded-lg hover:bg-amber-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">{t["vote.vote"]}</button>
                     </div>
                   </div>
                 ))}
@@ -120,7 +122,7 @@ export default function Vote() {
             {!loading && works.length > 0 && (
               <div className="grid grid-cols-4 gap-3">
                 {works.map((w) => (
-                  <div key={w.id} className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow">
+                  <div key={w.id} className="bg-white rounded-xl overflow-hidden border border-gray-100 hover:shadow-md transition-shadow cursor-pointer" onClick={() => setSelectedWork(w)}>
                     <div className="aspect-square bg-gray-200 relative">
                       {w.images?.[0] ? <img src={w.images[0]} alt={w.work_number} className="w-full h-full object-cover" /> : <div className="w-full h-full flex items-center justify-center text-gray-400">{t["vote.noImage"]}</div>}
                       <div className="absolute top-2 left-2 bg-black/50 text-white/80 text-xs px-2 py-0.5 rounded">{w.work_number}</div>
@@ -128,7 +130,7 @@ export default function Vote() {
                     </div>
                     <div className="p-3 flex items-center justify-between">
                       <span className="text-sm text-text-primary font-medium">{w.name_masked}</span>
-                      <button onClick={() => isOpen && setVotingWorkId(w.id)} disabled={!isOpen} className="bg-brand-red text-white text-[13px] font-bold px-4 py-1.5 rounded-lg hover:bg-red-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">{t["vote.vote"]}</button>
+                      <button onClick={(e) => { e.stopPropagation(); if (isOpen) setVotingWorkId(w.id); }} disabled={!isOpen} className="bg-brand-red text-white text-[13px] font-bold px-4 py-1.5 rounded-lg hover:bg-red-800 disabled:opacity-40 disabled:cursor-not-allowed transition-colors">{t["vote.vote"]}</button>
                     </div>
                   </div>
                 ))}
@@ -145,6 +147,7 @@ export default function Vote() {
         </div>
       </div>
       {votingWorkId && <PhoneModal workId={votingWorkId} onClose={() => setVotingWorkId(null)} onSuccess={() => { setVotingWorkId(null); setVoteSuccess("投票成功！"); setTimeout(() => { setVoteSuccess(null); }, 2000); setPage(1); setRefreshKey(k => k + 1); }} />}
+      {selectedWork && <WorkDetailModal work={selectedWork} onClose={() => setSelectedWork(null)} onVote={() => setVotingWorkId(selectedWork.id)} canVote={isOpen} voteLabel={t["vote.vote"]} />}
       {voteSuccess && <div className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-green-600 text-white px-6 py-3 rounded-xl shadow-lg z-[60] text-sm font-bold">{voteSuccess}</div>}
     </div>
   );

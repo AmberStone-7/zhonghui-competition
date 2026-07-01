@@ -8,16 +8,20 @@ interface WorkCardProps {
   images: string[];
   vote_count: number;
   action?: ReactNode;
+  onClick?: () => void;
 }
 
-export default function WorkCard({ work_number, name_masked, images, vote_count, action }: WorkCardProps) {
+export default function WorkCard({ work_number, name_masked, images, vote_count, action, onClick }: WorkCardProps) {
   const { t } = useLanguage();
   const hasImage = images.length > 0;
   const [imgError, setImgError] = useState(false);
 
   return (
-    <div className="bg-white rounded-lg overflow-hidden border border-gray-200 transition-all hover:-translate-y-0.5 hover:shadow-md">
-      {/* Image Area - 120px fixed height matching prototype */}
+    <div
+      className={`bg-white rounded-lg overflow-hidden border border-gray-200 transition-all hover:-translate-y-0.5 hover:shadow-md ${onClick ? "cursor-pointer" : ""}`}
+      onClick={onClick}
+    >
+      {/* Image Area */}
       <div className="relative h-[120px] bg-gradient-to-br from-gray-100 to-gray-200 overflow-hidden">
         {hasImage && !imgError ? (
           <img
@@ -31,7 +35,6 @@ export default function WorkCard({ work_number, name_masked, images, vote_count,
             <ImageOff className="w-8 h-8" />
           </div>
         )}
-        {/* Overlay badges - positioned per prototype: top-2 left-2 right-2 */}
         <div className="absolute top-2 left-2 right-2 flex justify-between">
           <span className="bg-black/50 backdrop-blur-sm text-white/80 px-2 py-0.5 rounded text-xs font-semibold">
             {work_number}
@@ -42,7 +45,6 @@ export default function WorkCard({ work_number, name_masked, images, vote_count,
         </div>
       </div>
 
-      {/* Footer */}
       <div className="px-3 pt-2 pb-3">
         {action ? (
           <div className="space-y-2">

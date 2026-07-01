@@ -1,3 +1,5 @@
+import type { VoucherTag } from "../types";
+
 const BASE = import.meta.env.BASE_URL;
 
 const DEMO_IMAGES = [
@@ -7,6 +9,18 @@ const DEMO_IMAGES = [
   `${BASE}assets/h5-sample-6.png`,
 ];
 
+const DEMO_POSTER = `${BASE}assets/h5-sample-3.png`;
+const DEMO_SCHOOL_POSTER = `${BASE}assets/h5-sample-4.png`;
+
+// ── Mock voucher tags ──
+
+const mockVoucherTags: VoucherTag[] = [
+  { id: "tag-1", name: "100欧元代金券", amount: 100, color: "#FF6B6B" },
+  { id: "tag-2", name: "50欧元代金券", amount: 50, color: "#4ECDC4" },
+  { id: "tag-3", name: "200欧元代金券", amount: 200, color: "#FFD93D" },
+  { id: "tag-4", name: "300欧元代金券", amount: 300, color: "#6C5CE7" },
+];
+
 // ── Public showcase mock ──
 
 export interface MockWork {
@@ -14,6 +28,8 @@ export interface MockWork {
   work_number: string;
   name_masked: string;
   images: string[];
+  poster_images?: string[];
+  school_poster_images?: string[];
   vote_count: number;
 }
 
@@ -24,12 +40,19 @@ const mockWorks: MockWork[] = Array.from({ length: 20 }, (_, i) => ({
     "张**","李**","王**","赵**","陈**","刘**","黄**","周**","吴**","郑**",
     "孙**","马**","胡**","朱**","林**","何**","郭**","高**","罗**","梁**",
   ][i],
-  images: [DEMO_IMAGES[i % 4]],
+  images: Array.from({ length: ((i % 3) + 1) }, (_, j) => DEMO_IMAGES[(i + j) % 4]),
   vote_count: [328, 156, 89, 512, 67, 234, 445, 198, 76, 623, 301, 45, 267, 389, 142, 98, 511, 73, 420, 185][i],
+  poster_images: Array.from({ length: (((i + 1) % 3) + 1) }, (_, j) => DEMO_IMAGES[(i + j + 1) % 4]),
+  school_poster_images: Array.from({ length: (((i + 2) % 3) + 1) }, (_, j) => DEMO_IMAGES[(i + j + 2) % 4]),
 }));
 
 export function getMockWorks(params?: { search?: string; sort?: string; page?: number; size?: number }) {
   let filtered = [...mockWorks];
+  // Only show approved works publicly
+  filtered = filtered.filter(w => {
+    const admin = mockAdminWorks.find(a => a.work_number === w.work_number);
+    return admin && admin.status === "approved";
+  });
   const search = params?.search?.trim() || "";
   if (search) {
     const lower = search.toLowerCase();
@@ -76,8 +99,15 @@ export interface MockAdminWork {
   contestant_tax_id: string;
   contestant_address: string;
   images: string[];
+  poster_images?: string[];
+  school_poster_images?: string[];
+  poster_image?: string;
+  school_poster_image?: string;
   status: string;
   reject_reason: string | null;
+  customer_number?: string;
+  admin_remarks?: string;
+  voucher_tag?: VoucherTag | null;
   created_at: string;
 }
 
@@ -87,22 +117,35 @@ const ADDRESSES = ["浙江省杭州市中山路128号","江苏省南京市解放
   "福建省福州市建设路89号","山东省济南市和平街45号","河南省郑州市长安街167号",
   "湖北省武汉市南京路223号","四川省成都市北京路78号"];
 
+// 20 works with mixed statuses including hold
 const mockAdminWorks: MockAdminWork[] = Array.from({ length: 20 }, (_, i) => {
-  const statuses = ["pending","pending","pending","pending","pending","approved","approved","approved",
-    "approved","approved","approved","approved","approved","approved","approved","approved","approved","rejected","rejected","rejected"];
+  const statuses = ["pending","pending","pending","pending","approved","approved","approved","approved",
+    "approved","approved","approved","approved","approved","approved","approved","hold","hold","rejected","rejected","rejected"];
   const s = statuses[i];
   const daysAgo = Math.floor(Math.random() * 14) + 1;
   const date = new Date(Date.now() - daysAgo * 86400000).toISOString();
+
+  // Assign voucher tags to some approved works
+  let voucherTag: VoucherTag | null = null;
+  if (s === "approved" && i % 3 === 0) {
+    voucherTag = mockVoucherTags[i % 4];
+  }
+
   return {
     id: `wa-${String(i + 1).padStart(3, "0")}`,
-    work_number: s === "pending" ? null : `ZH26-${String(i + 1).padStart(3, "0")}`,
+    work_number: `ZH26-${String(i + 1).padStart(3, "0")}`,
     contestant_name: NAMES[i],
     contestant_phone: `138${String(Math.floor(Math.random() * 100000000)).padStart(8, "0")}`,
     contestant_tax_id: `91330100MA28W${String(Math.floor(Math.random() * 90000) + 10000)}X`,
     contestant_address: ADDRESSES[i % 8],
-    images: [DEMO_IMAGES[i % 4]],
+    images: Array.from({ length: ((i % 3) + 1) }, (_, j) => DEMO_IMAGES[(i + j) % 4]),
+    poster_image: DEMO_POSTER,
+    school_poster_image: DEMO_SCHOOL_POSTER,
     status: s,
     reject_reason: s === "rejected" ? "照片模糊，不符合参赛要求" : null,
+    customer_number: s === "approved" ? `KH${String(i + 1).padStart(3, "0")}` : undefined,
+    admin_remarks: s === "approved" && i % 4 === 0 ? "橱窗陈列优秀，值得推广" : undefined,
+    voucher_tag: voucherTag,
     created_at: date,
   };
 });
@@ -118,6 +161,25 @@ export function getMockAdminWorks(params?: { status?: string; page?: number; siz
   return { data: filtered.slice(start, start + size), total: filtered.length, page, size };
 }
 
+// ── Mock voucher tags ──
+
+export function getMockVoucherTags(): VoucherTag[] {
+  return [...mockVoucherTags];
+}
+
+export function getMockVoucherExport() {
+  const approved_with_tag = mockAdminWorks.filter(
+    w => w.status === "approved" && w.voucher_tag
+  );
+  return approved_with_tag.map(w => ({
+    name: w.contestant_name,
+    tax_id: w.contestant_tax_id,
+    customer_number: w.customer_number || "",
+    admin_remarks: w.admin_remarks || "",
+    voucher_amount: w.voucher_tag?.amount || 0,
+  }));
+}
+
 // ── Scores mock ──
 
 export function getMockScores() {
@@ -126,7 +188,6 @@ export function getMockScores() {
   return approved.map(w => {
     const scores = ["scorer_a","scorer_b","scorer_c","scorer_d"].map(role => {
       const max = maxByRole[role];
-      // Random subtotal within [0, max] using discrete increments
       const possible = [];
       for (let v = 0; v <= max; v += 0.5) possible.push(v);
       const subtotal = possible[Math.floor(Math.random() * possible.length)];
@@ -180,6 +241,7 @@ export function getMockDashboardStats() {
     pending_review: mockAdminWorks.filter(w => w.status === "pending").length,
     approved: mockAdminWorks.filter(w => w.status === "approved").length,
     rejected: mockAdminWorks.filter(w => w.status === "rejected").length,
+    hold: mockAdminWorks.filter(w => w.status === "hold").length,
   };
 }
 
@@ -356,4 +418,63 @@ export function getMockScorerDetail(workId: string, role: string) {
   }
 
   return { work_info: workInfo, board: { name: board.name, max_score: board.max_score, items: board.items }, current_score };
+}
+
+
+// ── Score verification for showcase detail ──
+
+export interface ScoreDetail {
+  score_a: number | null;
+  score_b: number | null;
+  score_c: number | null;
+  score_d: number | null;
+  popularity_score: number | null;
+  total: number | null;
+}
+
+export function verifyWorkScore(workId: string, _phone: string, _taxId: string, _isMock: boolean = false): { success: boolean; data?: ScoreDetail; error?: string } {
+  // Find in mockAdminWorks by id or work_number
+  let dbWork = mockAdminWorks.find(w => w.id === workId || w.work_number === workId);
+  if (!dbWork) {
+    const pub = mockWorks.find(w => w.id === workId || w.work_number === workId);
+    if (pub) dbWork = mockAdminWorks.find(w => w.work_number === pub.work_number);
+  }
+  if (!dbWork) {
+    return { success: false, error: "作品不存在" };
+  }
+
+  // Check if work has been reviewed
+  if (dbWork.status !== "approved") {
+    return { success: false, error: "该作品尚未通过审核" };
+  }
+
+  // Generate deterministic mock scores from work ID
+  const hash = dbWork.id.split("").reduce((acc: number, c: string) => acc + c.charCodeAt(0), 0);
+  
+  let score_a = Math.round(((hash % 9) / 2) * 2) / 2;
+  let score_b = Math.round((((hash * 3) % 11) / 2) * 2) / 2;
+  let score_c = Math.round((((hash * 7) % 9) / 2) * 2) / 2;
+  let score_d = Math.round((((hash * 11) % 5) / 2) * 2) / 2;
+
+  score_a = Math.min(score_a, 4);
+  score_b = Math.min(score_b, 5);
+  score_c = Math.min(score_c, 4);
+  score_d = Math.min(score_d, 2);
+
+  // Get vote count from mockWorks
+  const mockW = mockWorks.find(w => w.work_number === dbWork.work_number);
+  const popularity = mockW ? Math.min(Math.ceil((mockW.vote_count || 0) / 100), 5) : 1;
+  const total = score_a + score_b + score_c + score_d + popularity;
+
+  return {
+    success: true,
+    data: {
+      score_a,
+      score_b,
+      score_c,
+      score_d,
+      popularity_score: popularity,
+      total,
+    },
+  };
 }

@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import api from "../api/client";
 import { getMockWorks } from "../api/mock";
 import WorkCard from "../components/WorkCard";
+import WorkDetailModal from "../components/WorkDetailModal";
 import MobilePrototypeHero from "../components/MobilePrototypeHero";
 import PcBannerImage from "../components/PcBannerImage";
 import { useLanguage } from "../hooks/useLanguage";
@@ -19,6 +20,7 @@ export default function Showcase() {
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
   const [usingMock, setUsingMock] = useState(false);
+  const [selectedWork, setSelectedWork] = useState<Work | null>(null);
   const size = 8;
 
   useEffect(() => {
@@ -65,7 +67,7 @@ export default function Showcase() {
               <div className="text-center py-12 text-text-muted"><Search className="w-10 h-10 mx-auto mb-3 text-gray-200" /><p>{t["showcase.noData"]}</p></div>
             )}
             {!loading && works.length > 0 && (
-              <div className="grid grid-cols-2 gap-3">{works.map((w) => <WorkCard key={w.id} work_number={w.work_number} name_masked={w.name_masked} images={w.images} vote_count={w.vote_count} />)}</div>
+              <div className="grid grid-cols-2 gap-3">{works.map((w) => <WorkCard key={w.id} work_number={w.work_number} name_masked={w.name_masked} images={w.images} vote_count={w.vote_count} onClick={() => setSelectedWork(w)} />)}</div>
             )}
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-4 pt-2">
@@ -99,7 +101,7 @@ export default function Showcase() {
               <div className="text-center py-16 text-text-muted"><Search className="w-12 h-12 mx-auto mb-3 text-gray-200" /><p>{t["showcase.noData"]}</p></div>
             )}
             {!loading && works.length > 0 && (
-              <div className="grid grid-cols-4 gap-3">{works.map((w) => <WorkCard key={w.id} work_number={w.work_number} name_masked={w.name_masked} images={w.images} vote_count={w.vote_count} />)}</div>
+              <div className="grid grid-cols-4 gap-3">{works.map((w) => <WorkCard key={w.id} work_number={w.work_number} name_masked={w.name_masked} images={w.images} vote_count={w.vote_count} onClick={() => setSelectedWork(w)} />)}</div>
             )}
             {totalPages > 1 && (
               <div className="flex justify-center items-center gap-4 mt-6">
@@ -111,6 +113,8 @@ export default function Showcase() {
           </div>
         </div>
       </div>
+
+      {selectedWork && <WorkDetailModal work={selectedWork} onClose={() => setSelectedWork(null)} />}
     </div>
   );
 }

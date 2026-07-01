@@ -19,12 +19,19 @@ export const LANGUAGES: { code: Language; nativeLabel: string }[] = [
   { code: "fr", nativeLabel: "Français" },
 ];
 
-const translations: Record<Language, Translations> = {
-  zh, en, es, pt, it, pl, fr,
+// Merge non-zh translations with zh as fallback for missing keys
+const merged: Record<Language, Translations> = {
+  zh,
+  en: { ...zh, ...en } as Translations,
+  es: { ...zh, ...es } as Translations,
+  pt: { ...zh, ...pt } as Translations,
+  it: { ...zh, ...it } as Translations,
+  pl: { ...zh, ...pl } as Translations,
+  fr: { ...zh, ...fr } as Translations,
 };
 
 export function getTranslations(lang: Language): Translations {
-  return translations[lang] || translations.zh;
+  return merged[lang] || merged.zh;
 }
 
 export type { Translations };

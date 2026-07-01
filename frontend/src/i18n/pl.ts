@@ -1,6 +1,5 @@
-import type { Translations } from "./zh";
 
-const pl: Translations = {
+const translations = {
   "nav.register": "Zgłoś się",
   "nav.showcase": "Galeria",
   "nav.rules": "Zasady",
@@ -142,4 +141,4 @@ const pl: Translations = {
   "workcard.noImage": "Brak Zdjęcia",
 };
 
-export default pl;
+export default translations as any;

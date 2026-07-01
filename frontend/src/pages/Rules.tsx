@@ -7,12 +7,32 @@ const BASE = import.meta.env.BASE_URL;
 export default function Rules() {
   const { t } = useLanguage();
 
+  const timeline = [
+    { label: "活动报名", date: "2026.7.27 — 9.13" },
+    { label: "后台评分", date: "2026.7.27 — 9.15" },
+    { label: "人气投票", date: "2026.9.14 — 9.17" },
+    { label: "结果公布", date: "2026.9.18" },
+    { label: "礼品发放", date: "2026.10.1 起" },
+  ];
+
   const rules = [
     { num: 1, title: t["rules.eligibility"], items: [t["rules.eligibility1"], t["rules.eligibility2"], t["rules.eligibility3"]] },
     { num: 2, title: t["rules.requirements"], items: [t["rules.requirements1"], t["rules.requirements2"], t["rules.requirements3"]] },
     { num: 3, title: t["rules.process"], items: [t["rules.process1"], t["rules.process2"], t["rules.process3"]] },
-    { num: 4, title: t["rules.judging"], items: [t["rules.judging1"], t["rules.judging2"], t["rules.judging3"]] },
-    { num: 5, title: t["rules.voting"], items: [t["rules.voting1"], t["rules.voting2"], t["rules.voting3"]] },
+    { num: 4, title: "评分体系", items: [
+      "A-品牌与活动规范（4分）：海报展示、产品占比、新品露出、品牌识别",
+      "B-视觉设计表现（5分）：色彩搭配、创意表达、空间布局",
+      "C-陈列专业度（4分）：产品分类、主推突出、信息清晰",
+      "D-执行与细节（2分）：整洁度、灯光效果",
+      "人气分（5分）：根据得票数排名换算",
+      "总分 = A + B + C + D + 人气分 = 满分 20 分",
+    ]},
+    { num: 5, title: t["rules.voting"], items: [
+      "同一手机号对同一作品仅可投票 1 次",
+      "同一 IP 对同一作品仅可投票 1 次",
+      "投票通道由管理员控制开启/关闭",
+      "投票结果实时显示",
+    ]},
   ];
 
   return (
@@ -21,6 +41,20 @@ export default function Rules() {
       <div className="md:hidden min-h-screen" style={{ backgroundImage: `url(${BASE}assets/bg-h5-video.png)`, backgroundSize: 'cover', backgroundPosition: 'center top' }}>
         <MobilePrototypeHero />
         <div className="relative z-10 px-4 pb-8 pt-[12px] space-y-3">
+          {/* Timeline */}
+          <div className="bg-white/55 backdrop-blur-md rounded-xl p-4 shadow-sm">
+            <p className="text-[#1E293B] font-bold text-[15px] mb-3">活动时间</p>
+            <div className="space-y-2">
+              {timeline.map((item, i) => (
+                <div key={i} className="flex items-center justify-between">
+                  <span className="text-[#334155] text-[13px]">{item.label}</span>
+                  <span className="text-[#8A1C14] text-[12px] font-medium">{item.date}</span>
+                </div>
+              ))}
+            </div>
+            <p className="text-[11px] text-gray-400 mt-2">* 以上时间均为西班牙当地时间</p>
+          </div>
+
           {rules.map((r) => (
             <div key={r.num} className="bg-white/55 backdrop-blur-md rounded-xl p-4 shadow-sm">
               <div className="flex items-start gap-3">
@@ -42,11 +76,26 @@ export default function Rules() {
           </div>
         </div>
       </div>
+
       {/* === PC === */}
       <div className="hidden md:block">
         <PcBannerImage />
         <div className="max-w-[1104px] mx-auto px-6 mt-8 relative z-10 pb-12">
           <div className="bg-white rounded-xl shadow-sm border border-gray-100 p-8">
+            {/* Timeline - PC */}
+            <div className="mb-8 p-6 bg-gray-50 rounded-xl">
+              <h2 className="text-lg font-bold text-[#1E293B] mb-4">活动时间</h2>
+              <div className="flex gap-4">
+                {timeline.map((item, i) => (
+                  <div key={i} className="flex-1 bg-white rounded-lg p-4 text-center border border-gray-100">
+                    <p className="text-xs text-gray-400 mb-1">{item.label}</p>
+                    <p className="text-sm font-bold text-[#8A1C14]">{item.date}</p>
+                  </div>
+                ))}
+              </div>
+              <p className="text-xs text-gray-400 mt-3">* 以上时间均为西班牙当地时间</p>
+            </div>
+
             <h2 className="text-lg font-bold text-[#1E293B] mb-6 flex items-center gap-2">
               <span className="w-5 h-5 bg-brand-red rounded-full" /> {t["rules.title"]}
             </h2>

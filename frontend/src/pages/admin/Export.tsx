@@ -12,6 +12,7 @@ const exportCards: ExportCard[] = [
   { type: "scores", label: "成绩数据", description: "导出所有参赛作品的评分数据，包含各维度得分和总分" },
   { type: "registrations", label: "报名数据", description: "导出所有报名记录，包含参赛者信息和审核状态" },
   { type: "votes", label: "投票数据", description: "导出所有投票记录，包含投票时间和投票作品" },
+  { type: "voucher", label: "代金券数据", description: "导出所有已审核且关联代金券标签的作品数据，用于财务发放" },
   { type: "logs", label: "操作日志", description: "导出系统操作日志，包含管理员操作记录" },
 ];
 

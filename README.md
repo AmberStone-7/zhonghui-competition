@@ -1,5 +1,7 @@
 # 中汇文具 20 周年特别橱窗大赛系统
 
+> 完整产品需求文档：[docs/PRD.md](docs/PRD.md)
+
 ## 技术架构
 
 - **前端**: React 19 + Vite 8 + Tailwind CSS 4 + TypeScript → GitHub Pages 独立部署
